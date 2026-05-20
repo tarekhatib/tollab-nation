@@ -17,6 +17,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const defaultImage = "https://beirutscope.com/og-image.png";
 
+  const pageUrl = `https://beirutscope.com/${category.slug}`;
+
   return {
     title: category.name,
     description: `Latest ${category.name} news from Beirut Scope.`,
@@ -24,6 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `${category.name} | Beirut Scope`,
       description: `Latest ${category.name} news from Beirut Scope.`,
       type: "website",
+      url: pageUrl,
       images: [
         {
           url: defaultImage,

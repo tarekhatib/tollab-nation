@@ -31,6 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : undefined;
 
   const displayTitle = article.titleAr || article.title;
+  const pageUrl = `https://beirutscope.com/${article.category.slug}/${article.slug}`;
 
   return {
     title: displayTitle,
@@ -39,6 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: displayTitle,
       description: `${displayTitle} — ${article.category.name}`,
       type: "article",
+      url: pageUrl,
       publishedTime: article.publishedAt.toISOString(),
       ...(images && { images }),
     },
