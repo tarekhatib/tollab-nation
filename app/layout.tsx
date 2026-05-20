@@ -14,11 +14,18 @@ export const metadata: Metadata = {
     siteName: "Beirut Scope",
     type: "website",
     locale: "en_US",
-    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+    images: [
+      {
+        url: "https://beirutscope.com/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Beirut Scope preview image",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    images: ["/og-image.png"],
+    images: ["https://beirutscope.com/og-image.png"],
   },
 };
 

@@ -23,8 +23,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const article = await getArticleBySlug(slug);
   if (!article) return {};
 
+  const resolveImageUrl = (url: string) =>
+    url.startsWith("http") ? url : new URL(url, "https://beirutscope.com").toString();
+
   const images = article.coverImage
-    ? [{ url: article.coverImage, width: 1200, height: 630, alt: article.title }]
+    ? [{ url: resolveImageUrl(article.coverImage), width: 1200, height: 630, alt: article.title }]
     : undefined;
 
   const displayTitle = article.titleAr || article.title;
@@ -43,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: "summary_large_image",
       title: displayTitle,
       description: `${displayTitle} — ${article.category.name}`,
-      ...(images && { images: [article.coverImage!] }),
+      ...(images && { images: [images[0].url] }),
     },
   };
 }

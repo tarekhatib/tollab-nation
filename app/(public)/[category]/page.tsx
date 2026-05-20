@@ -14,6 +14,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category: slug } = await params;
   const category = await getCategoryBySlug(slug);
   if (!category) return {};
+
+  const defaultImage = "https://beirutscope.com/og-image.png";
+
   return {
     title: category.name,
     description: `Latest ${category.name} news from Beirut Scope.`,
@@ -21,6 +24,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `${category.name} | Beirut Scope`,
       description: `Latest ${category.name} news from Beirut Scope.`,
       type: "website",
+      images: [
+        {
+          url: defaultImage,
+          width: 1200,
+          height: 630,
+          alt: `${category.name} | Beirut Scope`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: [defaultImage],
     },
   };
 }
