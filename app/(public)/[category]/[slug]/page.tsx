@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     url.startsWith("http") ? url : new URL(url, "https://beirutscope.com").toString();
 
   const isUsableOgImage = (url: string) =>
-    !url.includes("gstatic.com") && !url.includes("googleusercontent.com");
+    !url.includes("encrypted-tbn0.gstatic.com");
 
   const rawCover = article.coverImage && isUsableOgImage(article.coverImage)
     ? article.coverImage

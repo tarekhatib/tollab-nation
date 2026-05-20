@@ -19,19 +19,19 @@ model Category {
 model Article {
   id          Int           @id @default(autoincrement())
   title       String
-  titleAr     String        @default("")
   slug        String        @unique
   content     Json
   coverImage  String?
   isFeatured  Boolean       @default(false)
-  isDraft     Boolean       @default(false)
-  clicks      Int           @default(0)
   views       Int           @default(0)
   publishedAt DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   categoryId  Int
-  category    Category      @relation(fields: [categoryId], references: [id])
+  clicks      Int           @default(0)
+  isDraft     Boolean       @default(false)
+  titleAr     String        @default("")
   ads         AdOnArticle[]
+  category    Category      @relation(fields: [categoryId], references: [id])
 
   @@index([categoryId])
   @@index([publishedAt])
@@ -42,13 +42,13 @@ model Ad {
   imageUrl  String
   linkUrl   String
   text      String?
-  position  Int           @default(2)
   showOnAll Boolean       @default(true)
   isActive  Boolean       @default(true)
-  expiresAt DateTime?
-  articles  AdOnArticle[]
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
+  position  Int           @default(2)
+  expiresAt DateTime?
+  articles  AdOnArticle[]
 
   @@index([position])
 }
@@ -64,10 +64,10 @@ model AdOnArticle {
 
 model QuickUpdate {
   id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
   textEn     String
   textAr     String
   isBreaking Boolean  @default(false)
-  createdAt  DateTime @default(now())
 
   @@index([createdAt])
 }
