@@ -26,9 +26,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolveImageUrl = (url: string) =>
     url.startsWith("http") ? url : new URL(url, "https://beirutscope.com").toString();
 
-  const images = article.coverImage
-    ? [{ url: resolveImageUrl(article.coverImage), width: 1200, height: 630, alt: article.title }]
-    : undefined;
+  const isUsableOgImage = (url: string) =>
+    !url.includes("gstatic.com") && !url.includes("googleusercontent.com");
+
+  const rawCover = article.coverImage && isUsableOgImage(article.coverImage)
+    ? article.coverImage
+    : null;
+
+  const images = rawCover
+    ? [{ url: resolveImageUrl(rawCover), width: 1200, height: 630, alt: article.title }]
+    : [{ url: "https://beirutscope.com/og-image.png", width: 1200, height: 630, alt: article.title }];
 
   const displayTitle = article.titleAr || article.title;
   const pageUrl = `https://beirutscope.com/${article.category.slug}/${article.slug}`;
@@ -42,13 +49,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "article",
       url: pageUrl,
       publishedTime: article.publishedAt.toISOString(),
-      ...(images && { images }),
+      images,
     },
     twitter: {
       card: "summary_large_image",
       title: displayTitle,
       description: `${displayTitle} — ${article.category.name}`,
-      ...(images && { images: [images[0].url] }),
+      images: [images[0].url],
     },
   };
 }
