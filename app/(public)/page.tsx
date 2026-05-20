@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import BreakingTicker from "@/components/ui/BreakingTicker";
 import QuickUpdatesSidebar from "@/components/ui/QuickUpdatesSidebar";
@@ -8,6 +9,15 @@ import { getFeaturedArticles, getLatestArticles, getArticlesGroupedByCategory } 
 import { getCategories } from "@/server/queries/categories";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  openGraph: {
+    title: "Beirut Scope",
+    description: "Breaking news and in-depth coverage from Lebanon and the world.",
+    url: "https://beirutscope.com",
+    type: "website",
+  },
+};
 
 export default async function HomePage() {
   const [breakingUpdates, sidebarUpdates, featuredArticles, latest, categories] = await Promise.all([

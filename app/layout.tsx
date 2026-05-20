@@ -14,12 +14,15 @@ export const metadata: Metadata = {
     siteName: "Beirut Scope",
     type: "website",
     locale: "en_US",
+    url: "https://beirutscope.com",
+    title: "Beirut Scope",
+    description: "Breaking news and in-depth coverage from Lebanon and the world.",
     images: [
       {
         url: "https://beirutscope.com/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Beirut Scope preview image",
+        alt: "Beirut Scope",
       },
     ],
   },
