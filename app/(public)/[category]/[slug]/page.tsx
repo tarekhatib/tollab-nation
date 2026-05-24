@@ -134,7 +134,7 @@ export default async function ArticlePage({ params }: Props) {
             sizes="(max-width: 768px) 100vw, 768px"
             className="object-cover"
             priority
-            unoptimized={article.coverImage.startsWith("http")}
+            unoptimized
           />
         </div>
       )}

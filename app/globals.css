@@ -9,6 +9,8 @@
   --bg-card:    #FFFFFF;
   --bg-header:  #F4F4F5;
   --bg-footer:  #0A0A0A;
+  --bg-canvas:  #FFFFFF;
+  --bg-surface: #F4F4F4;
 
   --text-primary:   #111111;
   --text-secondary: #555555;
@@ -27,6 +29,8 @@
     --bg-card:    #1C1C1C;
     --bg-header:  #161616;
     --bg-footer:  #0A0A0A;
+    --bg-canvas:  #1C1C1C;
+    --bg-surface: #181818;
 
     --text-primary:   #F0F0F0;
     --text-secondary: #AAAAAA;
@@ -52,6 +56,9 @@
   --color-ink-footer: var(--text-footer);
 
   --color-line: var(--border);
+
+  --color-canvas:  var(--bg-canvas);
+  --color-surface: var(--bg-surface);
 }
 
 body {
@@ -102,4 +109,24 @@ summary,
 
 [dir="auto"] {
   text-align: start;
+}
+
+/* Explicit utility fallback — ensures bg-canvas / bg-surface always work
+   even before Tailwind re-compiles the new @theme entries */
+@layer utilities {
+  .bg-canvas  { background-color: var(--bg-canvas); }
+  .bg-surface { background-color: var(--bg-surface); }
+}
+
+/* ProseMirror / TipTap — mobile text interaction */
+.ProseMirror {
+  -webkit-user-select: text;
+  user-select: text;
+  touch-action: auto;
+  cursor: text;
+}
+
+.ProseMirror * {
+  -webkit-user-select: text;
+  user-select: text;
 }

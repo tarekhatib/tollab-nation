@@ -137,8 +137,9 @@ const ToolbarButton = ({
   <button
     type="button"
     title={title}
+    onMouseDown={(e) => e.preventDefault()}
     onClick={onClick}
-    className={`p-1.5 rounded transition-colors ${
+    className={`p-2 sm:p-1.5 rounded transition-colors touch-manipulation ${
       active
         ? "bg-ink/15 text-ink"
         : "text-ink-soft hover:text-ink hover:bg-ink/8"
@@ -212,6 +213,57 @@ export default function ArticleEditor({ categories, article }: Props) {
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, [isDirty]);
+
+  // Double-tap = select word, triple-tap = select paragraph
+  useEffect(() => {
+    if (!editor?.view) return;
+    const dom = editor.view.dom;
+    let taps = 0;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let lastX = 0;
+    let lastY = 0;
+
+    const onTouchEnd = (e: TouchEvent) => {
+      const touch = e.changedTouches[0];
+      const x = touch.clientX;
+      const y = touch.clientY;
+      const sameArea = Math.abs(x - lastX) < 40 && Math.abs(y - lastY) < 40;
+
+      if (!sameArea) { taps = 0; lastX = x; lastY = y; }
+      taps++;
+
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => { taps = 0; }, 400);
+
+      if (taps === 2) {
+        e.preventDefault();
+        requestAnimationFrame(() => {
+          const { from } = editor.state.selection;
+          const $pos = editor.state.doc.resolve(from);
+          const text = $pos.parent.textContent;
+          const off = $pos.parentOffset;
+          let s = off;
+          let end = off;
+          while (s > 0 && /\S/.test(text[s - 1])) s--;
+          while (end < text.length && /\S/.test(text[end])) end++;
+          if (s < end) {
+            editor.commands.setTextSelection({ from: $pos.start() + s, to: $pos.start() + end });
+          }
+        });
+      } else if (taps === 3) {
+        e.preventDefault();
+        requestAnimationFrame(() => {
+          const { from } = editor.state.selection;
+          const $pos = editor.state.doc.resolve(from);
+          editor.commands.setTextSelection({ from: $pos.start(), to: $pos.end() });
+        });
+        taps = 0;
+      }
+    };
+
+    dom.addEventListener("touchend", onTouchEnd, { passive: false });
+    return () => dom.removeEventListener("touchend", onTouchEnd);
+  }, [editor]);
 
   async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -309,8 +361,8 @@ export default function ArticleEditor({ categories, article }: Props) {
   const previewCategory = categories.find((c) => c.id === Number(categoryId));
 
   return (
-    <div className="flex gap-8 items-start max-w-6xl">
-    <form onSubmit={handleSubmit} className="flex-1 min-w-0 space-y-6">
+    <div className="flex gap-8 items-start max-w-6xl w-full min-w-0">
+    <form onSubmit={handleSubmit} className="flex-1 min-w-0 space-y-6 w-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-ink mb-1">Title (English)</label>
@@ -384,7 +436,7 @@ export default function ArticleEditor({ categories, article }: Props) {
               value={coverImage}
               onChange={(e) => { setCoverImage(e.target.value); setIsDirty(true); }}
               placeholder="https://… or upload →"
-              className="flex-1 min-w-0 px-4 py-2.5 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+              className="flex-1 min-w-0 w-0 px-4 py-2.5 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent"
             />
             <button
               type="button"
@@ -403,7 +455,7 @@ export default function ArticleEditor({ categories, article }: Props) {
         <label className="block text-sm font-medium text-ink mb-1">Content</label>
         <div className="rounded-lg border border-line bg-canvas">
           {/* Toolbar */}
-          <div className="sticky top-0 z-20 flex flex-wrap items-center gap-0.5 px-2 py-1.5 border-b border-line bg-header rounded-t-lg">
+          <div className="sticky top-14 lg:top-0 z-20 flex flex-wrap items-center gap-0.5 px-2 py-1.5 border-b border-line bg-header rounded-t-lg">
             <ToolbarButton title="Bold" onClick={() => editor?.chain().focus().toggleBold().run()} active={editor?.isActive("bold")}>
               <Icon d={icons.bold} />
             </ToolbarButton>
@@ -460,7 +512,7 @@ export default function ArticleEditor({ categories, article }: Props) {
       <div>
         <label className="block text-sm font-medium text-ink mb-1">
           Slug
-          <span className="ml-2 text-xs font-normal text-ink-muted">URL: /{"{category}"}/<span className="text-accent">{slug || "…"}</span></span>
+          <span className="ml-2 text-xs font-normal text-ink-muted truncate max-w-full">URL: /{"{category}"}/<span className="text-accent">{slug || "…"}</span></span>
         </label>
         <input
           type="text"
@@ -477,7 +529,7 @@ export default function ArticleEditor({ categories, article }: Props) {
 
       {error && <p className="text-sm text-accent font-medium">{error}</p>}
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <button
           type="submit"
           disabled={isPending}

@@ -166,7 +166,7 @@ export default function FeaturedSlideshow({ articles }: Props) {
                   className="object-cover pointer-events-none"
                   priority={i === 0}
                   draggable={false}
-                  unoptimized={a.coverImage.startsWith("http")}
+                  unoptimized
                 />
               ) : (
                 <div className="w-full h-full bg-line" />

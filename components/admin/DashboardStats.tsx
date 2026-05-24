@@ -88,7 +88,7 @@ export default function DashboardStats({
     <>
       {/* Period tabs + stat cards */}
       <div className="mb-10">
-        <div className="flex items-center gap-1 mb-4 bg-surface border border-line rounded-xl p-1 w-fit">
+        <div className="flex items-center gap-1 mb-4 bg-surface border border-line rounded-xl p-1 w-fit max-w-full overflow-x-auto">
           {(["weekly", "monthly", "alltime"] as Period[]).map((p) => (
             <button
               key={p}
@@ -121,12 +121,12 @@ export default function DashboardStats({
 
       {/* Chart */}
       <div className="bg-canvas border border-line rounded-xl mb-10">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-line flex-wrap gap-3">
+        <div className="flex items-start justify-between px-4 sm:px-6 py-4 border-b border-line flex-wrap gap-3">
           <div className="flex items-center gap-2">
             <h2 className="text-sm font-semibold text-ink capitalize">{metric}</h2>
             <span className="text-sm text-ink-soft">{subtitle}</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {/* Metric tabs */}
             <div className="flex items-center gap-1 bg-surface border border-line rounded-lg p-0.5">
               {(["articles", "clicks", "views"] as Metric[]).map((m) => (

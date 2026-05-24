@@ -59,7 +59,7 @@ export default function AdminSidebar() {
   return (
     <>
       {/* Mobile top header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 flex items-center justify-between px-4 bg-canvas border-b border-line">
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 h-14 flex items-center justify-between px-4 bg-header border-b border-line">
         <button
           onClick={() => setOpen(true)}
           className="p-2 rounded-lg text-ink-soft hover:bg-surface transition-colors"
@@ -88,7 +88,7 @@ export default function AdminSidebar() {
         className={`
           fixed lg:static inset-y-0 left-0 z-50
           w-64 lg:w-60 shrink-0 flex flex-col
-          border-r border-line bg-canvas min-h-screen
+          border-r border-line bg-card min-h-screen
           transition-transform duration-300 ease-in-out
           ${open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}

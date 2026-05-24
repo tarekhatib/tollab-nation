@@ -24,7 +24,7 @@ export default function ArticleCard({ article, size = "default" }: Props) {
                 fill
                 sizes="80px"
                 className="object-cover group-hover:scale-105 transition-transform duration-300"
-                unoptimized={article.coverImage.startsWith("http")}
+                unoptimized
               />
             </div>
           </Link>
@@ -52,7 +52,7 @@ export default function ArticleCard({ article, size = "default" }: Props) {
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover group-hover:scale-105 transition-transform duration-300"
-              unoptimized={article.coverImage.startsWith("http")}
+              unoptimized
             />
           </div>
         </Link>
