@@ -1,5 +1,6 @@
 "use server";
 
+import { requireAdmin } from "@/lib/admin-guard";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
@@ -55,6 +56,7 @@ function resolveExpiry(durationDays: number | null): Date | null {
 }
 
 export async function createAd(payload: AdPayload): Promise<ActionResult> {
+  await requireAdmin();
   const { articleIds, durationDays, ...data } = payload;
 
   const conflict = await checkConflicts(payload.position, payload.showOnAll, articleIds);
@@ -75,6 +77,7 @@ export async function createAd(payload: AdPayload): Promise<ActionResult> {
 }
 
 export async function updateAd(id: number, payload: AdPayload): Promise<ActionResult> {
+  await requireAdmin();
   const { articleIds, durationDays, ...data } = payload;
 
   const conflict = await checkConflicts(payload.position, payload.showOnAll, articleIds, id);
@@ -99,6 +102,7 @@ export async function updateAd(id: number, payload: AdPayload): Promise<ActionRe
 }
 
 export async function deleteAd(id: number) {
+  await requireAdmin();
   const ad = await prisma.ad.findUnique({ where: { id } });
   if (!ad) return;
 
@@ -108,6 +112,7 @@ export async function deleteAd(id: number) {
 }
 
 export async function toggleAdActive(id: number, isActive: boolean) {
+  await requireAdmin();
   await prisma.ad.update({ where: { id }, data: { isActive } });
   revalidatePath("/admin/ads");
 }

@@ -1,5 +1,6 @@
 "use server";
 
+import { requireAdmin } from "@/lib/admin-guard";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
@@ -8,6 +9,7 @@ export async function createQuickUpdate(payload: {
   textAr: string;
   isBreaking?: boolean;
 }) {
+  await requireAdmin();
   if (!payload.textEn.trim() || !payload.textAr.trim()) {
     throw new Error("Both English and Arabic text are required.");
   }
@@ -27,6 +29,7 @@ export async function createQuickUpdate(payload: {
 }
 
 export async function deleteQuickUpdate(id: number) {
+  await requireAdmin();
   await prisma.quickUpdate.delete({ where: { id } });
   revalidatePath("/");
   revalidatePath("/updates");

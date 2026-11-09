@@ -1,7 +1,7 @@
 "use server";
 
+import { requireAdmin } from "@/lib/admin-guard";
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 
@@ -12,10 +12,6 @@ export type AuthorPayload = {
   isVerified?: boolean;
 };
 
-async function requireAdmin() {
-  const session = await auth();
-  if (!session?.user) throw new Error("Unauthorized.");
-}
 
 function clean(payload: AuthorPayload) {
   const name = payload.name.trim();

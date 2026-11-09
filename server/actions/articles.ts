@@ -1,5 +1,6 @@
 "use server";
 
+import { requireAdmin } from "@/lib/admin-guard";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
@@ -36,6 +37,7 @@ async function fetchAndStoreRemote(url: string, folder: "covers" | "content") {
 }
 
 export async function createArticle(payload: ArticlePayload) {
+  await requireAdmin();
   const slug = payload.slug?.trim() || slugify(payload.title);
 
   const existing = await prisma.article.findUnique({ where: { slug } });
@@ -79,6 +81,7 @@ export async function updateArticle(
   id: number,
   payload: Partial<ArticlePayload>
 ) {
+  await requireAdmin();
   const current = await prisma.article.findUnique({ where: { id } });
   if (!current) throw new Error("Article not found.");
 
@@ -129,6 +132,7 @@ export async function updateArticle(
 }
 
 export async function deleteArticle(id: number) {
+  await requireAdmin();
   await prisma.article.delete({ where: { id } });
   revalidatePath("/");
   revalidatePath("/admin");
