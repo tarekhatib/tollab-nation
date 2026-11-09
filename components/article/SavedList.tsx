@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { BookmarkIcon } from "@/components/article/SaveButton";
+import SavedNote from "@/components/article/SavedNote";
 import { removeSaved, useSavedStories } from "@/lib/saved";
 import { timeAgo } from "@/lib/utils";
 
@@ -17,11 +18,14 @@ export default function SavedList() {
         </span>
         <p className="mt-5 text-lg font-semibold">Nothing saved yet</p>
         <p className="mt-2 max-w-xs text-sm text-ink-muted">
-          Tap <span className="font-semibold text-ink">Save</span> on any story to keep it here for later. Saved stories stay on this device.
+          Tap <span className="font-semibold text-ink">Save</span> on any story to keep it here for later.
         </p>
         <Link href="/" className="press mt-6 inline-flex h-11 items-center rounded-full bg-ink px-5 text-sm font-semibold text-page">
           Browse top stories
         </Link>
+        <div className="w-full max-w-md text-left">
+          <SavedNote />
+        </div>
       </div>
     );
   }
@@ -63,6 +67,7 @@ export default function SavedList() {
           );
         })}
       </ul>
+      <SavedNote />
     </>
   );
 }
