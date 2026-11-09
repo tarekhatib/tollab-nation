@@ -10,7 +10,8 @@ import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import { useState, useTransition, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { createArticle, updateArticle } from "@/server/actions/articles";
+import { createArticle, deleteArticle, updateArticle } from "@/server/actions/articles";
+import { uploadImage } from "@/lib/upload-image";
 import { slugify } from "@/lib/utils";
 
 interface Category {
@@ -148,7 +149,9 @@ const ToolbarButton = ({
     title={title}
     onMouseDown={(e) => e.preventDefault()}
     onClick={onClick}
-    className={`p-2 sm:p-1.5 rounded transition-colors touch-manipulation ${
+    aria-label={title}
+    aria-pressed={active}
+    className={`grid size-10 shrink-0 place-items-center rounded-full transition-colors touch-manipulation lg:size-8 ${
       active
         ? "bg-ink/15 text-ink"
         : "text-ink-soft hover:text-ink hover:bg-ink/8"
@@ -158,7 +161,7 @@ const ToolbarButton = ({
   </button>
 );
 
-const Divider = () => <span className="w-px h-5 bg-line mx-0.5" />;
+const Divider = () => <span aria-hidden="true" className="mx-1 h-5 w-px shrink-0 bg-line" />;
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -183,16 +186,6 @@ export default function ArticleEditor({ categories, authors, article }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
-  async function uploadToCloud(file: File, folder: "covers" | "content"): Promise<string> {
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("folder", folder);
-    const res = await fetch("/api/upload", { method: "POST", body: fd });
-    if (!res.ok) throw new Error("Upload failed");
-    const { url } = await res.json();
-    return url;
-  }
-
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -211,81 +204,43 @@ export default function ArticleEditor({ categories, authors, article }: Props) {
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm dark:prose-invert max-w-none min-h-[320px] focus:outline-none px-6 py-4 text-ink [&_a]:text-blue-500 [&_a]:underline",
+          "prose prose-sm dark:prose-invert max-w-none min-h-[45vh] lg:min-h-[320px] focus:outline-none px-4 py-4 sm:px-6 text-ink [&_a]:text-accent-ink [&_a]:underline",
         dir: "auto",
       },
     },
   });
 
+  // Unsaved work is protected from tab closes *and* from in-app links (menu, tab bar).
   useEffect(() => {
-    const handler = (e: BeforeUnloadEvent) => {
-      if (isDirty) e.preventDefault();
-    };
-    window.addEventListener("beforeunload", handler);
-    return () => window.removeEventListener("beforeunload", handler);
-  }, [isDirty]);
-
-  // Double-tap = select word, triple-tap = select paragraph
-  useEffect(() => {
-    if (!editor?.view) return;
-    const dom = editor.view.dom;
-    let taps = 0;
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    let lastX = 0;
-    let lastY = 0;
-
-    const onTouchEnd = (e: TouchEvent) => {
-      const touch = e.changedTouches[0];
-      const x = touch.clientX;
-      const y = touch.clientY;
-      const sameArea = Math.abs(x - lastX) < 40 && Math.abs(y - lastY) < 40;
-
-      if (!sameArea) { taps = 0; lastX = x; lastY = y; }
-      taps++;
-
-      if (timer) clearTimeout(timer);
-      timer = setTimeout(() => { taps = 0; }, 400);
-
-      if (taps === 2) {
+    if (!isDirty) return;
+    const onUnload = (e: BeforeUnloadEvent) => e.preventDefault();
+    const onClick = (e: MouseEvent) => {
+      const a = (e.target as Element | null)?.closest?.("a[href]");
+      if (!a || a.getAttribute("target") === "_blank") return;
+      if (!confirm("You have unsaved changes. Leave anyway?")) {
         e.preventDefault();
-        requestAnimationFrame(() => {
-          const { from } = editor.state.selection;
-          const $pos = editor.state.doc.resolve(from);
-          const text = $pos.parent.textContent;
-          const off = $pos.parentOffset;
-          let s = off;
-          let end = off;
-          while (s > 0 && /\S/.test(text[s - 1])) s--;
-          while (end < text.length && /\S/.test(text[end])) end++;
-          if (s < end) {
-            editor.commands.setTextSelection({ from: $pos.start() + s, to: $pos.start() + end });
-          }
-        });
-      } else if (taps === 3) {
-        e.preventDefault();
-        requestAnimationFrame(() => {
-          const { from } = editor.state.selection;
-          const $pos = editor.state.doc.resolve(from);
-          editor.commands.setTextSelection({ from: $pos.start(), to: $pos.end() });
-        });
-        taps = 0;
+        e.stopPropagation();
       }
     };
-
-    dom.addEventListener("touchend", onTouchEnd, { passive: false });
-    return () => dom.removeEventListener("touchend", onTouchEnd);
-  }, [editor]);
+    window.addEventListener("beforeunload", onUnload);
+    document.addEventListener("click", onClick, { capture: true });
+    return () => {
+      window.removeEventListener("beforeunload", onUnload);
+      document.removeEventListener("click", onClick, { capture: true });
+    };
+  }, [isDirty]);
 
   async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setCoverUploading(true);
     try {
-      const url = await uploadToCloud(file, "covers");
+      setError("");
+      const url = await uploadImage(file, "covers");
       setCoverImage(url);
       setIsDirty(true);
-    } catch {
-      setError("Cover image upload failed.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Cover image upload failed.");
     } finally {
       setCoverUploading(false);
       e.target.value = "";
@@ -297,10 +252,11 @@ export default function ArticleEditor({ categories, authors, article }: Props) {
     if (!file || !editor) return;
     setEditorUploading(true);
     try {
-      const url = await uploadToCloud(file, "content");
+      setError("");
+      const url = await uploadImage(file, "content");
       editor.chain().focus().setImage({ src: url }).run();
-    } catch {
-      setError("Image upload failed.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Image upload failed.");
     } finally {
       setEditorUploading(false);
       e.target.value = "";
@@ -444,7 +400,7 @@ export default function ArticleEditor({ categories, authors, article }: Props) {
           <div className="relative">
             <select
               value={categoryId}
-              onChange={(e) => setCategoryId(Number(e.target.value))}
+              onChange={(e) => { setCategoryId(Number(e.target.value)); setIsDirty(true); }}
               className="w-full px-4 py-2.5 pr-9 border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent appearance-none"
             >
               {categories.map((cat) => (
@@ -460,39 +416,52 @@ export default function ArticleEditor({ categories, authors, article }: Props) {
         <div>
           <div className="flex items-center justify-between mb-1">
             <label className="block text-sm font-medium text-ink">Cover image</label>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-ink-muted">Featured</span>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={isFeatured}
-                onClick={() => { setIsFeatured((v) => !v); setIsDirty(true); }}
-                className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none ${
-                  isFeatured ? "bg-accent" : "bg-ink/20"
-                }`}
-              >
-                <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform duration-200 ${isFeatured ? "translate-x-4.5" : "translate-x-0.5"}`} />
-              </button>
-            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={isFeatured}
+              onClick={() => { setIsFeatured((v) => !v); setIsDirty(true); }}
+              className="-my-2 flex items-center gap-2 py-2 text-xs font-medium text-ink-muted"
+            >
+              Featured
+              <span className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 ${isFeatured ? "bg-accent" : "bg-ink/20"}`}>
+                <span className={`inline-block size-5 rounded-full bg-white shadow transition-transform duration-200 ${isFeatured ? "translate-x-5.5" : "translate-x-0.5"}`} />
+              </span>
+            </button>
           </div>
           <div className="flex gap-2">
             <input
               type="url"
               value={coverImage}
               onChange={(e) => { setCoverImage(e.target.value); setIsDirty(true); }}
-              placeholder="https://… or upload →"
+              placeholder="Paste image link…"
               className="flex-1 min-w-0 w-0 px-4 py-2.5 border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent"
             />
             <button
               type="button"
               onClick={() => coverInputRef.current?.click()}
               disabled={coverUploading}
-              className="shrink-0 px-3 py-2.5 rounded-full border border-line bg-surface text-ink-soft text-sm hover:text-ink hover:border-accent transition-colors disabled:opacity-50"
+              className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full border border-line bg-surface px-4 text-sm font-medium text-ink-soft transition-colors hover:border-accent hover:text-ink disabled:opacity-50"
             >
-              {coverUploading ? "…" : <Icon d={icons.image} />}
+              <Icon d={icons.image} />
+              {coverUploading ? "Uploading…" : "Upload"}
             </button>
             <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} />
           </div>
+          {coverImage && (
+            <div className="relative mt-2 aspect-video overflow-hidden border border-line bg-surface lg:hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={coverImage} alt="Cover preview" className="size-full object-cover" />
+              <button
+                type="button"
+                onClick={() => { setCoverImage(""); setIsDirty(true); }}
+                aria-label="Remove cover image"
+                className="absolute right-2 top-2 grid size-9 place-items-center rounded-full bg-black/70 text-white"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -500,7 +469,16 @@ export default function ArticleEditor({ categories, authors, article }: Props) {
         <label className="block text-sm font-medium text-ink mb-1">Content</label>
         <div className=" border border-line bg-canvas">
           {/* Toolbar */}
-          <div className="sticky top-14 lg:top-0 z-20 flex flex-wrap items-center gap-0.5 px-2 py-1.5 border-b border-line bg-header rounded-t-lg">
+          <div className="no-scrollbar sticky top-16 z-20 flex flex-nowrap items-center gap-0.5 overflow-x-auto border-b border-line bg-canvas px-1.5 py-1 lg:top-0 lg:flex-wrap lg:overflow-visible">
+            <ToolbarButton title="Undo" onClick={() => editor?.chain().focus().undo().run()}>
+              <Icon d="M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11" />
+            </ToolbarButton>
+            <ToolbarButton title="Redo" onClick={() => editor?.chain().focus().redo().run()}>
+              <Icon d="m15 14 5-5-5-5M20 9H9.5a5.5 5.5 0 0 0 0 11H13" />
+            </ToolbarButton>
+
+            <Divider />
+
             <ToolbarButton title="Bold" onClick={() => editor?.chain().focus().toggleBold().run()} active={editor?.isActive("bold")}>
               <Icon d={icons.bold} />
             </ToolbarButton>
@@ -572,38 +550,66 @@ export default function ArticleEditor({ categories, authors, article }: Props) {
         />
       </div>
 
-      {error && <p className="text-sm text-accent font-medium">{error}</p>}
+      {article && (
+        <div className="border-t border-line pt-6">
+          <button
+            type="button"
+            disabled={isPending}
+            onClick={() => {
+              if (!confirm("Delete this article for good? This can't be undone.")) return;
+              startTransition(async () => {
+                try {
+                  await deleteArticle(article.id);
+                  setIsDirty(false);
+                  router.push("/admin/articles");
+                  router.refresh();
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : "Couldn't delete the article.");
+                }
+              });
+            }}
+            className="inline-flex h-10 items-center rounded-full px-4 text-sm font-medium text-ink-muted transition-colors hover:text-accent disabled:opacity-50"
+          >
+            Delete article
+          </button>
+        </div>
+      )}
 
-      <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="submit"
-          disabled={isPending}
-          className="px-5 py-2 bg-accent text-white text-sm font-semibold rounded-full hover:bg-accent-hover transition-colors disabled:opacity-50"
-        >
-          {pendingAction === "publish"
-            ? "Saving…"
-            : article
-              ? article.isDraft ? "Publish Now" : "Save Changes"
-              : "Publish Article"}
-        </button>
-        <button
-          type="button"
-          disabled={isPending}
-          onClick={() => save(true)}
-          className="px-5 py-2 text-sm font-semibold rounded-full border border-line text-ink-soft hover:text-ink hover:border-accent transition-colors disabled:opacity-50"
-        >
-          {pendingAction === "draft" ? "Saving…" : "Save as Draft"}
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            if (isDirty && !confirm("You have unsaved changes. Leave anyway?")) return;
-            router.back();
-          }}
-          className="px-5 py-2 text-sm font-medium text-ink-soft hover:text-ink transition-colors"
-        >
-          Cancel
-        </button>
+      {/* Actions stay within thumb reach while writing */}
+      <div className="sticky bottom-0 z-30 -mx-4 border-t border-line bg-page/95 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur-md sm:-mx-6 sm:px-6 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
+        {error && <p role="alert" className="mb-2 text-sm font-medium text-accent-ink">{error}</p>}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button
+            type="submit"
+            disabled={isPending}
+            className="inline-flex h-11 flex-1 items-center justify-center rounded-full bg-accent px-5 text-sm font-semibold text-white transition-colors hover:bg-accent-hover disabled:opacity-50 sm:flex-none"
+          >
+            {pendingAction === "publish"
+              ? "Saving…"
+              : article
+                ? article.isDraft ? "Publish" : "Save changes"
+                : "Publish"}
+          </button>
+          <button
+            type="button"
+            disabled={isPending}
+            onClick={() => save(true)}
+            className="inline-flex h-11 flex-1 items-center justify-center rounded-full border border-line px-5 text-sm font-semibold text-ink-soft transition-colors hover:border-ink hover:text-ink disabled:opacity-50 sm:flex-none"
+          >
+            {pendingAction === "draft" ? "Saving…" : article && !article.isDraft ? "Unpublish" : "Save draft"}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (isDirty && !confirm("You have unsaved changes. Leave anyway?")) return;
+              setIsDirty(false);
+              router.push("/admin/articles");
+            }}
+            className="inline-flex h-11 shrink-0 items-center px-2 text-sm font-medium text-ink-soft transition-colors hover:text-ink sm:px-3"
+          >
+            Cancel
+          </button>
+        </div>
       </div>
     </form>
 

@@ -2,7 +2,11 @@
 
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const CONTACT_TO = process.env.CONTACT_EMAIL_TO || "tollabcontact@gmail.com";
+const CONTACT_FROM = process.env.CONTACT_EMAIL_FROM || "Tollab Nation Contact <onboarding@resend.dev>";
+
+const escapeHtml = (s: string) =>
+  s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
 export async function submitContactForm(
   name: string,
@@ -22,10 +26,20 @@ export async function submitContactForm(
     return { error: "Message must be at least 10 characters." };
   }
 
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.error("[contact] RESEND_API_KEY is not set; message not sent.");
+    return { error: "The contact form is temporarily unavailable. Please email us directly." };
+  }
+  const resend = new Resend(apiKey);
+
+  // Everything the visitor typed is escaped before it goes into the email HTML.
+  const safeName = escapeHtml(name.trim());
+  const safeEmail = escapeHtml(email.trim());
   const messageHtml = message
     .trim()
     .split("\n")
-    .map((line) => `<p style="margin:0 0 8px 0">${line || "&nbsp;"}</p>`)
+    .map((line) => `<p style="margin:0 0 8px 0">${escapeHtml(line) || "&nbsp;"}</p>`)
     .join("");
 
   const html = `<!DOCTYPE html>
@@ -57,8 +71,8 @@ export async function submitContactForm(
               </tr>
               <tr>
                 <td style="padding:16px">
-                  <p style="margin:0 0 4px;font-size:16px;font-weight:600;color:#111">${name}</p>
-                  <a href="mailto:${email}" style="font-size:14px;color:#C8102E;text-decoration:none">${email}</a>
+                  <p style="margin:0 0 4px;font-size:16px;font-weight:600;color:#111">${safeName}</p>
+                  <a href="mailto:${safeEmail}" style="font-size:14px;color:#C8102E;text-decoration:none">${safeEmail}</a>
                 </td>
               </tr>
             </table>
@@ -73,9 +87,9 @@ export async function submitContactForm(
             <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px">
               <tr>
                 <td>
-                  <a href="mailto:${email}?subject=Re: Your message to Tollab Nation"
+                  <a href="mailto:${safeEmail}?subject=Re: Your message to Tollab Nation"
                      style="display:inline-block;background:#C8102E;color:#ffffff;font-size:14px;font-weight:600;text-decoration:none;padding:12px 24px;border-radius:8px">
-                    Reply to ${name}
+                    Reply to ${safeName}
                   </a>
                 </td>
               </tr>
@@ -101,8 +115,8 @@ export async function submitContactForm(
 </html>`;
 
   const { error } = await resend.emails.send({
-    from: "Tollab Nation Contact <onboarding@resend.dev>",
-    to: "tollabcontact@gmail.com",
+    from: CONTACT_FROM,
+    to: CONTACT_TO,
     replyTo: email,
     subject: `New message from ${name}`,
     html,

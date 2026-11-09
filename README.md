@@ -34,8 +34,8 @@
 
 ```bash
 npm install
-cp .env.example .env        # then fill in the values
-npx prisma migrate deploy   # apply migrations
+cp .env.example .env        # then fill it in
+npx prisma migrate deploy   # creates tables, the 9 sections and the author list
 npm run db:seed:demo        # optional: demo content
 npm run dev                 # http://localhost:3000
 ```
@@ -44,25 +44,25 @@ Sign in at `/admin/login` with `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
 
 ### Environment variables
 
-See [`.env.example`](.env.example).
+See [`.env.example`](.env.example). It lists where each value comes from.
 
-- **Required:** `DATABASE_URL`, `AUTH_SECRET`, `ADMIN_EMAIL` and `ADMIN_PASSWORD`.
-- **Optional:**
-  - `CLOUDINARY_*`: image uploads from the admin. Without it, paste image URLs instead.
-  - `RESEND_API_KEY`: contact form email.
-  - `CRON_SECRET`: protects the cron routes.
+- **Required:** `DATABASE_URL` + `DATABASE_URL_UNPOOLED` (Neon pooled and direct), `AUTH_SECRET`, `ADMIN_EMAIL` and `ADMIN_PASSWORD`.
+- **Recommended:** `CLOUDINARY_CLOUD_NAME` + `CLOUDINARY_UPLOAD_PRESET` for image uploads, and `CRON_SECRET`.
+- **Optional:** `RESEND_API_KEY` for contact-form email, and `NEXT_PUBLIC_SITE_URL` once you have a domain.
 
 ### Database migrations
 
-- **Always use `prisma migrate deploy`.** Avoid `prisma migrate dev` against a shared or production database, because it can reset data when it detects drift.
-- **Neon's pooled connection** can leave Prisma's migration lock held. If `migrate deploy` hangs on an advisory lock, either run it with `PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=1` or point it at the direct (non-pooled) URL.
+- **On Vercel:** every build runs `prisma migrate deploy` (see `npm run build`), so a new or empty database is set up on the first deploy.
+- **Locally:** use `npm run db:migrate`. Never use `prisma migrate dev` against a shared or production database, because it can reset data when it detects drift.
+- **Connections:** migrations use the direct connection (`DATABASE_URL_UNPOOLED`), because Neon's pooler can't hold Prisma's migration lock. The app itself uses the pooled `DATABASE_URL`.
 
 ## Scripts
 
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Start the dev server |
-| `npm run build` | Generate the Prisma client and build for production |
+| `npm run build` | Generate the Prisma client, apply migrations, build for production |
+| `npm run db:migrate` | Apply pending migrations |
 | `npm start` | Serve the production build |
 | `npm run lint` | ESLint |
 | `npm run db:seed:demo` | Load demo articles and updates |

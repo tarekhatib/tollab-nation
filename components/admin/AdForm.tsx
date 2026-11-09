@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useRef } from "react";
+import { uploadImage } from "@/lib/upload-image";
 import { useRouter } from "next/navigation";
 import { createAd, updateAd } from "@/server/actions/ads";
 
@@ -65,25 +66,16 @@ export default function AdForm({ articles, ad }: Props) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
 
-  async function uploadImage(file: File): Promise<string> {
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("folder", "ads");
-    const res = await fetch("/api/upload", { method: "POST", body: fd });
-    if (!res.ok) throw new Error("Upload failed");
-    const { url } = await res.json();
-    return url;
-  }
-
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
     try {
-      const url = await uploadImage(file);
+      setError("");
+      const url = await uploadImage(file, "ads");
       setImageUrl(url);
-    } catch {
-      setError("Image upload failed.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Image upload failed.");
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -139,11 +131,6 @@ export default function AdForm({ articles, ad }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
-      {error && (
-        <div className="px-4 py-3 bg-red-50 border border-red-200 text-sm text-red-700">
-          {error}
-        </div>
-      )}
 
       {/* Image */}
       <div className="bg-canvas border border-line p-5 space-y-3">
@@ -355,22 +342,25 @@ export default function AdForm({ articles, ad }: Props) {
         )}
       </div>
 
-      {/* Submit */}
-      <div className="flex items-center gap-3">
-        <button
-          type="submit"
-          disabled={isPending || uploading}
-          className="px-6 py-2.5 bg-accent text-white text-sm font-medium rounded-full hover:bg-accent-hover transition-colors disabled:opacity-50"
-        >
-          {isPending ? "Saving…" : ad ? "Save changes" : "Create ad"}
-        </button>
-        <button
-          type="button"
-          onClick={() => router.push("/admin/ads")}
-          className="px-6 py-2.5 bg-surface text-ink-soft text-sm font-medium rounded-full hover:text-ink border border-line transition-colors"
-        >
-          Cancel
-        </button>
+      {/* Submit — pinned within thumb reach on phones; errors show right here */}
+      <div className="sticky bottom-0 z-30 -mx-4 border-t border-line bg-page/95 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur-md sm:-mx-6 sm:px-6 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
+        {error && <p role="alert" className="mb-2 text-sm font-medium text-accent-ink">{error}</p>}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button
+            type="submit"
+            disabled={isPending || uploading}
+            className="inline-flex h-11 flex-1 items-center justify-center rounded-full bg-accent px-6 text-sm font-semibold text-white transition-colors hover:bg-accent-hover disabled:opacity-50 sm:flex-none"
+          >
+            {isPending ? "Saving…" : uploading ? "Uploading…" : ad ? "Save changes" : "Create ad"}
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push("/admin/ads")}
+            className="inline-flex h-11 items-center rounded-full border border-line px-5 text-sm font-medium text-ink-soft transition-colors hover:text-ink"
+          >
+            Cancel
+          </button>
+        </div>
       </div>
     </form>
   );

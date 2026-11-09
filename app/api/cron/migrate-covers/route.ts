@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isCronAuthorized } from "@/lib/cron-auth";
 import { uploadImage, isManagedImage } from "@/lib/cloudinary";
 
 async function fetchAndStore(url: string) {
@@ -16,15 +17,7 @@ async function fetchAndStore(url: string) {
 }
 
 export async function POST(req: NextRequest) {
-  console.log(
-    "[migrate-covers] Auth header:",
-    req.headers.get("authorization"),
-  );
-  console.log("[migrate-covers] CRON_SECRET:", process.env.CRON_SECRET);
-
-  const auth = req.headers.get("authorization");
-  if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
-    console.log("[migrate-covers] Auth mismatch");
+  if (!isCronAuthorized(req.headers.get("authorization"))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

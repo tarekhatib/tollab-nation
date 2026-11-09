@@ -16,13 +16,27 @@ const icons = {
   ads: <path d="M4 10v4h3l6 4V6L7 10zM17 9a4 4 0 0 1 0 6" />,
 };
 
-const navItems = [
-  { label: "Dashboard", href: "/admin", icon: icons.dashboard },
+const navItems: { label: string; short?: string; href: string; icon: React.ReactNode }[] = [
+  { label: "Dashboard", short: "Home", href: "/admin", icon: icons.dashboard },
   { label: "Articles", href: "/admin/articles", icon: icons.articles },
   { label: "Authors", href: "/admin/authors", icon: icons.authors },
-  { label: "Live updates", href: "/admin/updates", icon: icons.updates },
+  { label: "Live updates", short: "Live", href: "/admin/updates", icon: icons.updates },
   { label: "Ads", href: "/admin/ads", icon: icons.ads },
 ];
+
+function TabLink({ item, active }: { item: (typeof navItems)[number]; active: boolean }) {
+  return (
+    <Link
+      href={item.href}
+      aria-current={active ? "page" : undefined}
+      className={`press relative flex flex-1 flex-col items-center justify-center gap-1 text-[0.6875rem] font-semibold ${active ? "text-ink" : "text-ink-muted"}`}
+    >
+      <span aria-hidden="true" className={`absolute inset-x-4 top-0 h-0.5 bg-red transition-transform duration-500 ${active ? "scale-x-100" : "scale-x-0"}`} />
+      <svg width="22" height="22" viewBox="0 0 24 24" {...s} aria-hidden="true">{item.icon}</svg>
+      {item.short ?? item.label}
+    </Link>
+  );
+}
 
 /** Admin navigation in the site's masthead style: black in both themes, red active marker. */
 export default function AdminSidebar() {
@@ -38,6 +52,7 @@ export default function AdminSidebar() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  const isFormPage = /\/(new|edit)$/.test(pathname);
   const isActive = (href: string) => (href === "/admin" ? pathname === "/admin" : pathname.startsWith(href));
 
   return (
@@ -64,6 +79,42 @@ export default function AdminSidebar() {
       {open && (
         <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden" onClick={() => setOpenOn(null)} aria-hidden="true" />
       )}
+
+      {/* Phone bottom bar: thumb-reach navigation + one-tap "new article".
+          Hidden on editing screens, where the save bar takes this spot. */}
+      {!isFormPage && (
+        <nav
+          aria-label="Admin quick navigation"
+          className="theme-ink fixed inset-x-0 bottom-0 z-40 border-t border-line bg-header pb-[env(safe-area-inset-bottom)] lg:hidden"
+        >
+          <div className="mx-auto flex h-16 max-w-lg items-stretch px-2">
+            {[navItems[0], navItems[1]].map((item) => (
+              <TabLink key={item.href} item={item} active={isActive(item.href)} />
+            ))}
+            <Link
+              href="/admin/articles/new"
+              aria-label="New article"
+              className="press flex flex-1 flex-col items-center justify-center gap-1 text-[0.6875rem] font-semibold text-ink-muted"
+            >
+              <span className="grid size-10 place-items-center rounded-full bg-accent text-white">
+                <svg width="20" height="20" viewBox="0 0 24 24" {...s} strokeWidth={2.2} aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+              </span>
+            </Link>
+            <TabLink item={navItems[3]} active={isActive(navItems[3].href)} />
+            <button
+              type="button"
+              onClick={() => setOpenOn(open ? null : pathname)}
+              aria-expanded={open}
+              className={`press flex flex-1 flex-col items-center justify-center gap-1 text-[0.6875rem] font-semibold ${open ? "text-ink" : "text-ink-muted"}`}
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" {...s} aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" /></svg>
+              More
+            </button>
+          </div>
+        </nav>
+      )}
+
+
 
       <aside
         className={`theme-ink fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 flex-col bg-header text-ink transition-transform duration-500 ease-(--ease-out-expo) lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${

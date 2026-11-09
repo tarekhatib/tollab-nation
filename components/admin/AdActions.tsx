@@ -25,18 +25,18 @@ export default function AdActions({ id, isActive }: Props) {
       <button
         onClick={handleToggle}
         disabled={isPending}
-        className={`text-xs font-medium px-2.5 py-1 rounded-full transition-colors ${
+        className={`inline-flex h-10 items-center rounded-full px-4 text-sm font-medium transition-colors disabled:opacity-50 ${
           isActive
-            ? "bg-green-100 text-green-700 hover:bg-green-200"
-            : "bg-surface text-ink-soft hover:bg-line"
+            ? "bg-ink text-page"
+            : "border border-line text-ink-muted"
         }`}
       >
-        {isActive ? "Active" : "Inactive"}
+        {isActive ? "● Live" : "Paused"}
       </button>
       <button
         onClick={handleDelete}
         disabled={isPending}
-        className="text-xs text-ink-soft hover:text-red-600 transition-colors"
+        className="inline-flex h-10 items-center rounded-full px-3 text-sm font-medium text-ink-muted transition-colors hover:text-accent-ink disabled:opacity-50"
       >
         Delete
       </button>

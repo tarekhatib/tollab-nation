@@ -14,12 +14,12 @@ export default async function AuthorsPage() {
         <div>
           <h1 className="display text-5xl uppercase leading-[0.9] text-ink sm:text-6xl">Authors</h1>
           <p className="mt-3 text-sm text-ink-muted">
-            {authors.length} authors · {total} published articles credited
+            {authors.length} authors · {total} articles credited · tap one to edit
           </p>
         </div>
         <Link
           href="/admin/authors/new"
-          className="px-4 py-2 bg-accent text-white text-sm font-semibold rounded-full hover:bg-accent-hover transition-colors"
+          className="inline-flex h-11 items-center rounded-full bg-accent px-5 text-sm font-semibold text-white transition-colors hover:bg-accent-hover"
         >
           + New author
         </Link>
@@ -36,35 +36,24 @@ export default async function AuthorsPage() {
         ) : (
           <ul className="divide-y divide-line">
             {authors.map((a) => (
-              <li key={a.id} className="flex items-center gap-4 px-4 sm:px-6 py-4">
-                <div className="flex-1 min-w-0">
-                  <p className="flex items-center gap-1.5 text-sm font-semibold text-ink">
-                    <span className="truncate">{a.name}</span>
-                    {a.isVerified && <VerifiedBadge size={15} />}
-                  </p>
-                  <p className="text-xs text-ink-soft mt-0.5">
-                    /author/{a.slug}
-                  </p>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="text-lg font-bold text-ink tabular-nums leading-none">{a._count.articles}</p>
-                  <p className="text-[11px] text-ink-muted mt-1">{a._count.articles === 1 ? "article" : "articles"}</p>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <Link
-                    href={`/author/${a.slug}`}
-                    target="_blank"
-                    className="hidden h-8 sm:inline-flex items-center rounded-full px-3 text-xs font-medium text-ink-soft border border-line hover:text-ink transition-colors"
-                  >
-                    View
-                  </Link>
-                  <Link
-                    href={`/admin/authors/${a.id}/edit`}
-                    className="inline-flex h-8 items-center rounded-full px-3 text-xs font-medium text-ink-soft border border-line hover:text-accent hover:border-accent transition-colors"
-                  >
-                    Edit
-                  </Link>
-                </div>
+              <li key={a.id} className="flex items-center">
+                <Link
+                  href={`/admin/authors/${a.id}/edit`}
+                  className="group flex min-w-0 flex-1 items-center gap-4 px-4 py-4 transition-colors active:bg-ink/5 sm:px-6"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="flex items-center gap-1.5 text-[0.95rem] font-semibold text-ink">
+                      <span className="truncate group-hover:underline">{a.name}</span>
+                      {a.isVerified && <VerifiedBadge size={15} />}
+                    </p>
+                    <p className="mt-0.5 truncate text-xs text-ink-muted">/author/{a.slug}</p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p className="display text-2xl leading-none text-ink tabular-nums">{a._count.articles}</p>
+                    <p className="mt-1 text-[11px] text-ink-muted">{a._count.articles === 1 ? "article" : "articles"}</p>
+                  </div>
+                  <svg className="shrink-0 text-ink-muted" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg>
+                </Link>
               </li>
             ))}
           </ul>

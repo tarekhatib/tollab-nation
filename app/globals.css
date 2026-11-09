@@ -486,3 +486,14 @@ summary,
 
 /* Scroll-driven reveals track vertical scrolling; inside a sideways rail they'd never fire */
 .rail [data-reveal] { animation: none; }
+
+/* iOS Safari zooms into any field with text under 16px. Keep fields at 16px on
+   touch-size screens so tapping a field never jumps the page. */
+@media (max-width: 1023px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea,
+  .ProseMirror {
+    font-size: 16px !important;
+  }
+}

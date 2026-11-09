@@ -15,7 +15,7 @@ export default async function AdsPage() {
         </div>
         <Link
           href="/admin/ads/new"
-          className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-full hover:bg-accent-hover transition-colors"
+          className="inline-flex h-11 items-center rounded-full bg-accent px-5 text-sm font-semibold text-white transition-colors hover:bg-accent-hover"
         >
           + New ad
         </Link>
@@ -23,7 +23,7 @@ export default async function AdsPage() {
 
       <div className="bg-canvas border border-line divide-y divide-line">
         {ads.map((ad) => (
-          <div key={ad.id} className="flex items-center gap-4 px-5 py-4">
+          <div key={ad.id} className="flex flex-wrap items-center gap-x-4 gap-y-3 px-4 py-4 sm:flex-nowrap sm:px-5">
             {/* Thumbnail */}
             <div className="relative w-24 h-14 overflow-hidden shrink-0 bg-surface border border-line">
               <Image
@@ -64,11 +64,11 @@ export default async function AdsPage() {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex w-full shrink-0 items-center justify-end gap-3 sm:w-auto">
               <AdActions id={ad.id} isActive={ad.isActive} />
               <Link
                 href={`/admin/ads/${ad.id}/edit`}
-                className="text-xs text-ink-soft hover:text-accent transition-colors"
+                className="inline-flex h-10 items-center rounded-full border border-line px-4 text-sm font-medium text-ink-soft transition-colors hover:border-accent hover:text-accent"
               >
                 Edit
               </Link>
