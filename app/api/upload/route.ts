@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { uploadImage } from "@/lib/cloudinary";
+import { isStorageConfigured, uploadImage } from "@/lib/storage";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -8,9 +8,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_UPLOAD_PRESET) {
+  if (!isStorageConfigured()) {
     return NextResponse.json(
-      { error: "Image uploads aren't set up yet (Cloudinary). Paste an image link instead." },
+      { error: "Image uploads aren't set up yet (Vercel Blob). Paste an image link instead." },
       { status: 503 }
     );
   }
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Only images can be uploaded." }, { status: 415 });
     }
 
-    const url = await uploadImage(file, folder, file.name);
+    const url = await uploadImage(file, folder, file.name, file.type);
     return NextResponse.json({ url });
   } catch (err) {
     console.error("[upload]", err);

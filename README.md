@@ -28,7 +28,7 @@
 - **Data:** Prisma 6 on PostgreSQL (Neon)
 - **Auth:** Auth.js v5, using a single admin login from environment variables
 - **Editor:** TipTap
-- **Images:** Cloudinary for uploads. Remote images are resized through a free proxy (wsrv.nl) by a custom `next/image` loader.
+- **Images:** Vercel Blob for uploads (downscaled in the browser first). Images are resized at display time through a free proxy (wsrv.nl) by a custom `next/image` loader.
 
 ## Getting started
 
@@ -47,7 +47,7 @@ Sign in at `/admin/login` with `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
 See [`.env.example`](.env.example). It lists where each value comes from.
 
 - **Required:** `DATABASE_URL` + `DATABASE_URL_UNPOOLED` (Neon pooled and direct), `AUTH_SECRET`, `ADMIN_EMAIL` and `ADMIN_PASSWORD`.
-- **Recommended:** `CLOUDINARY_CLOUD_NAME` + `CLOUDINARY_UPLOAD_PRESET` for image uploads, and `CRON_SECRET`.
+- **Recommended:** `BLOB_READ_WRITE_TOKEN` (Vercel Blob) for image uploads, and `CRON_SECRET`.
 - **Optional:** `RESEND_API_KEY` for contact-form email, and `NEXT_PUBLIC_SITE_URL` once you have a domain.
 
 ### Database migrations

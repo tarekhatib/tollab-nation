@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isCronAuthorized } from "@/lib/cron-auth";
-import { uploadImage, isManagedImage } from "@/lib/cloudinary";
+import { uploadImage, isManagedImage } from "@/lib/storage";
 
 async function fetchAndStore(url: string) {
   try {
     const res = await fetch(url);
     if (!res.ok) return null;
+    const type = res.headers.get("content-type")?.split(";")[0].trim() ?? "";
+    if (!type.startsWith("image/")) return null; // not an image (e.g. an HTML page)
     const ab = await res.arrayBuffer();
+    if (ab.byteLength > 15 * 1024 * 1024) return null;
     const pathname = new URL(url).pathname;
-    const name = pathname.split("/").pop() || `image-${Date.now()}.jpg`;
-    return await uploadImage(ab, "covers", name);
+    const name = pathname.split("/").pop() || `image-${Date.now()}`;
+    return await uploadImage(ab, "covers", name, type);
   } catch {
     return null;
   }

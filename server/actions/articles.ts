@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
-import { isManagedImage, uploadImage } from "@/lib/cloudinary";
+import { isManagedImage, uploadImage } from "@/lib/storage";
 
 type ArticlePayload = {
   title: string;
@@ -23,10 +23,13 @@ async function fetchAndStoreRemote(url: string, folder: "covers" | "content") {
   try {
     const res = await fetch(url);
     if (!res.ok) return null;
+    const type = res.headers.get("content-type")?.split(";")[0].trim() ?? "";
+    if (!type.startsWith("image/")) return null; // not an image (e.g. an HTML page)
     const ab = await res.arrayBuffer();
+    if (ab.byteLength > 15 * 1024 * 1024) return null;
     const pathname = new URL(url).pathname;
-    const name = pathname.split("/").pop() || `image-${Date.now()}.jpg`;
-    return await uploadImage(ab, folder, name);
+    const name = pathname.split("/").pop() || `image-${Date.now()}`;
+    return await uploadImage(ab, folder, name, type);
   } catch {
     return null;
   }
