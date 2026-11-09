@@ -10,14 +10,28 @@ export const maxDuration = 300;
 const needsCopy = (url: unknown): url is string =>
   typeof url === "string" && url.startsWith("http") && !isManagedImage(url);
 
+/** Image type from the file's first bytes, for servers that send "application/octet-stream". */
+function sniffImageType(ab: ArrayBuffer): string | null {
+  const b = new Uint8Array(ab.slice(0, 12));
+  const ascii = (from: number, to: number) => String.fromCharCode(...b.slice(from, to));
+  if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return "image/jpeg";
+  if (b[0] === 0x89 && ascii(1, 4) === "PNG") return "image/png";
+  if (ascii(0, 4) === "RIFF" && ascii(8, 12) === "WEBP") return "image/webp";
+  if (ascii(0, 3) === "GIF") return "image/gif";
+  if (ascii(4, 12) === "ftypavif") return "image/avif";
+  return null;
+}
+
 async function fetchAndStore(url: string, folder: StorageFolder) {
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(20_000) });
     if (!res.ok) return null;
-    const type = res.headers.get("content-type")?.split(";")[0].trim() ?? "";
-    if (!type.startsWith("image/")) return null; // not an image (e.g. an HTML page)
+    const header = res.headers.get("content-type")?.split(";")[0].trim() ?? "";
+    if (header && !header.startsWith("image/") && header !== "application/octet-stream") return null; // e.g. an HTML page
     const ab = await res.arrayBuffer();
     if (ab.byteLength > 15 * 1024 * 1024) return null;
+    const type = header.startsWith("image/") ? header : sniffImageType(ab);
+    if (!type) return null;
     const name = new URL(url).pathname.split("/").pop() || `image-${Date.now()}`;
     return await uploadImage(ab, folder, name, type);
   } catch {
