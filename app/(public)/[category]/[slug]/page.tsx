@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!article) return {};
 
   const resolveImageUrl = (url: string) =>
-    url.startsWith("http") ? url : new URL(url, "https://tollabnation.com").toString();
+    url.startsWith("http") ? url : new URL(url, SITE.url).toString();
 
   const isUsableOgImage = (url: string) =>
     !url.includes("encrypted-tbn0.gstatic.com");
@@ -47,10 +47,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const images = rawCover
     ? [{ url: resolveImageUrl(rawCover), width: 1200, height: 630, alt: article.title }]
-    : [{ url: "https://tollabnation.com/og-image.png", width: 1200, height: 630, alt: article.title }];
+    : [{ url: `${SITE.url}/og-image.png`, width: 1200, height: 630, alt: article.title }];
 
   const displayTitle = article.titleAr || article.title;
-  const pageUrl = `https://tollabnation.com/${article.category.slug}/${article.slug}`;
+  const pageUrl = `${SITE.url}/${article.category.slug}/${article.slug}`;
 
   return {
     title: displayTitle,
@@ -98,12 +98,12 @@ export default async function ArticlePage({ params }: Props) {
     image: article.coverImage ? [article.coverImage] : undefined,
     articleSection: article.category.name,
     author: article.author
-      ? { "@type": "Person", name: article.author.name, url: `https://tollabnation.com/author/${article.author.slug}` }
-      : { "@type": "Organization", name: "Tollab Nation", url: "https://tollabnation.com" },
+      ? { "@type": "Person", name: article.author.name, url: `${SITE.url}/author/${article.author.slug}` }
+      : { "@type": "Organization", name: "Tollab Nation", url: `${SITE.url}` },
     publisher: {
       "@type": "Organization",
       name: "Tollab Nation",
-      url: "https://tollabnation.com",
+      url: `${SITE.url}`,
     },
   };
 

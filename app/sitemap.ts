@@ -1,3 +1,4 @@
+import { SITE } from "@/lib/site";
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 
@@ -11,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     prisma.category.findMany({ select: { slug: true } }),
   ]);
 
-  const base = "https://tollabnation.com";
+  const base = `${SITE.url}`;
 
   return [
     { url: base, lastModified: new Date(), changeFrequency: "hourly", priority: 1 },

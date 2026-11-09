@@ -1,3 +1,4 @@
+import { SITE } from "@/lib/site";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ArticleCard from "@/components/ui/ArticleCard";
@@ -23,9 +24,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const category = await getCategoryBySlug(slug);
   if (!category) return {};
 
-  const defaultImage = "https://tollabnation.com/og-image.png";
+  const defaultImage = `${SITE.url}/og-image.png`;
 
-  const pageUrl = `https://tollabnation.com/${category.slug}`;
+  const pageUrl = `${SITE.url}/${category.slug}`;
 
   return {
     title: category.name,

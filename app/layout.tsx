@@ -1,3 +1,4 @@
+import { SITE } from "@/lib/site";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Archivo, Big_Shoulders, IBM_Plex_Sans_Arabic, IBM_Plex_Mono } from "next/font/google";
@@ -38,7 +39,7 @@ const SITE_DESCRIPTION =
   "News for the youngsters. Lebanon and the region, in Arabic and English, from Tollab Nation.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://tollabnation.com"),
+  metadataBase: new URL(SITE.url),
   title: {
     default: "Tollab Nation — News for the youngsters",
     template: "%s | Tollab Nation",
@@ -48,12 +49,12 @@ export const metadata: Metadata = {
     siteName: "Tollab Nation",
     type: "website",
     locale: "en_US",
-    url: "https://tollabnation.com",
+    url: `${SITE.url}`,
     title: "Tollab Nation",
     description: SITE_DESCRIPTION,
     images: [
       {
-        url: "https://tollabnation.com/og-image.png",
+        url: `${SITE.url}/og-image.png`,
         width: 1200,
         height: 630,
         alt: "Tollab Nation",
@@ -62,7 +63,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    images: ["https://tollabnation.com/og-image.png"],
+    images: [`${SITE.url}/og-image.png`],
   },
   applicationName: "Tollab Nation",
   appleWebApp: {
