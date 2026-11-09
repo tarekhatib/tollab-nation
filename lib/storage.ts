@@ -49,7 +49,19 @@ export async function uploadImage(
   return blob.url;
 }
 
-/** True for images already stored in our Blob store (no need to copy them again). */
+/** The current store's id, read from the token ("vercel_blob_rw_<storeId>_<secret>"). */
+function storeId() {
+  return process.env.BLOB_READ_WRITE_TOKEN?.split("_")[3]?.toLowerCase() || null;
+}
+
+/**
+ * True for images already in *this* project's Blob store (no need to copy them).
+ * Images in any other Blob store, such as the old account's, count as remote,
+ * so they're copied over instead of depending on a store we no longer control.
+ */
 export function isManagedImage(url: string | null | undefined) {
-  return !!url && /\.public\.blob\.vercel-storage\.com\//.test(url);
+  if (!url) return false;
+  const id = storeId();
+  if (!id) return /\.public\.blob\.vercel-storage\.com\//.test(url);
+  return url.toLowerCase().startsWith(`https://${id}.public.blob.vercel-storage.com/`);
 }
