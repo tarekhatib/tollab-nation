@@ -456,21 +456,24 @@ summary,
 .article-prose p:empty { display: none; }
 
 /* Swipeable story rails (phones) */
-.rail {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: min(78%, 20rem);
-  gap: 1rem;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x mandatory;
-  scroll-padding-inline: 1rem;
-  padding-inline: 1rem;
-  margin-inline: -1rem;
-  scrollbar-width: none;
+/* In the components layer so utilities such as lg:hidden can override it. */
+@layer components {
+  .rail {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: min(78%, 20rem);
+    gap: 1rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 1rem;
+    padding-inline: 1rem;
+    margin-inline: -1rem;
+    scrollbar-width: none;
+  }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail > * { scroll-snap-align: start; }
 }
-.rail::-webkit-scrollbar { display: none; }
-.rail > * { scroll-snap-align: start; }
 
 /* ── Admin editor (TipTap) ────────────────────────────────── */
 .ProseMirror {
