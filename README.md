@@ -46,7 +46,7 @@ Sign in at `/admin/login` with `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
 
 See [`.env.example`](.env.example). It lists where each value comes from.
 
-- **Required:** `DATABASE_URL` + `DATABASE_URL_UNPOOLED` (Neon pooled and direct), `AUTH_SECRET`, `ADMIN_EMAIL` and `ADMIN_PASSWORD`.
+- **Required:** `POSTGRES_PRISMA_URL` + `POSTGRES_URL_NON_POOLING` (Neon pooled and direct; Vercel's Neon integration creates both), `AUTH_SECRET`, `ADMIN_EMAIL` and `ADMIN_PASSWORD`.
 - **Recommended:** `BLOB_READ_WRITE_TOKEN` (Vercel Blob) for image uploads, and `CRON_SECRET`.
 - **Optional:** `RESEND_API_KEY` for contact-form email, and `NEXT_PUBLIC_SITE_URL` once you have a domain.
 
@@ -54,7 +54,7 @@ See [`.env.example`](.env.example). It lists where each value comes from.
 
 - **On Vercel:** every build runs `prisma migrate deploy` (see `npm run build`), so a new or empty database is set up on the first deploy.
 - **Locally:** use `npm run db:migrate`. Never use `prisma migrate dev` against a shared or production database, because it can reset data when it detects drift.
-- **Connections:** migrations use the direct connection (`DATABASE_URL_UNPOOLED`), because Neon's pooler can't hold Prisma's migration lock. The app itself uses the pooled `DATABASE_URL`.
+- **Connections:** migrations use the direct connection (`POSTGRES_URL_NON_POOLING`), because Neon's pooler can't hold Prisma's migration lock. The app itself uses the pooled `POSTGRES_PRISMA_URL`.
 
 ## Scripts
 
