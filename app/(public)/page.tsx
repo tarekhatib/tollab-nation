@@ -87,7 +87,9 @@ export default async function HomePage() {
             </div>
           )}
 
-          <div className="lg:col-span-3">
+          {/* From md up the desk never sets the row height: it fills whatever the
+              stories beside it take, and extra updates fade out under the fold. */}
+          <div className="md:relative md:min-h-[30rem] lg:col-span-3">
             <LiveDesk updates={updates} />
           </div>
         </section>

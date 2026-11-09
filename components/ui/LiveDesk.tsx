@@ -8,7 +8,7 @@ export default function LiveDesk({ updates }: { updates: QuickUpdate[] }) {
   return (
     <section
       aria-labelledby="live-desk-title"
-      className="flex h-full flex-col bg-[#0A0A0A] text-[#F4F2EE] [--border:#262624]"
+      className="flex h-full flex-col bg-[#0A0A0A] text-[#F4F2EE] [--border:#262624] md:absolute md:inset-0"
     >
       <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
         <h2 id="live-desk-title" className="flex items-center gap-2.5 display text-xl uppercase tracking-[0.04em]">
@@ -23,7 +23,8 @@ export default function LiveDesk({ updates }: { updates: QuickUpdate[] }) {
           Quiet right now. Breaking updates land here first.
         </p>
       ) : (
-        <ol className="flex-1 px-5">
+        // Phones: latest 3. Larger screens: as many as fit, the last one fading out.
+        <ol className="min-h-0 flex-1 px-5 max-md:[&>li:nth-child(n+4)]:hidden md:overflow-hidden md:[mask-image:linear-gradient(to_bottom,#000_calc(100%-4rem),transparent)]">
           {updates.map((u, i) => (
             <li key={u.id} className="relative border-b border-white/10 py-4 pl-5 last:border-0 animate-rise" style={{ "--d": i + 2 } as React.CSSProperties}>
               <span
@@ -36,7 +37,7 @@ export default function LiveDesk({ updates }: { updates: QuickUpdate[] }) {
                 <span>{timeAgo(u.createdAt)}</span>
                 {u.isBreaking && <span className="bg-accent px-1.5 py-1 text-[0.6rem] text-white">Breaking</span>}
               </p>
-              <p lang="ar" dir="rtl" className="mt-2 text-[0.95rem] font-medium leading-relaxed">
+              <p lang="ar" dir="rtl" className="mt-2 line-clamp-4 text-[0.95rem] font-medium leading-relaxed">
                 {u.textAr}
               </p>
               <p className="mt-1.5 line-clamp-2 text-[0.8125rem] leading-snug text-white/60">{u.textEn}</p>
