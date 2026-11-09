@@ -31,7 +31,7 @@ export default function SavedNote() {
   return (
     <aside className="mt-8 border-l-2 border-red bg-surface px-4 py-4 text-sm leading-relaxed text-ink-muted">
       <p>
-        <span className="font-semibold text-ink">Saved on this device only.</span> No account needed, but your list
+        <span className="font-semibold text-ink">Saved on this device only.</span>{" "}No account needed, but your list
         won&rsquo;t follow you to another phone or browser, and clearing your browsing data removes it.
       </p>
       {showIosTip && (
