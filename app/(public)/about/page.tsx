@@ -1,128 +1,124 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Mark } from "@/components/brand/Logo";
+import ChannelCta from "@/components/ui/ChannelCta";
+import { ArrowIcon } from "@/components/ui/Icons";
+import { SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "Beirut Scope is an independent digital news platform focused on covering local and regional stories with integrity.",
+    "Tollab Nation is an independent digital news platform covering Lebanon and the region, in Arabic and English.",
 };
+
+const VALUES = [
+  { title: "Independence", desc: "We are not funded or controlled by any external entity." },
+  { title: "Transparency", desc: "We are open about how we operate." },
+  { title: "Accuracy", desc: "We strive to report verified and factual information." },
+  { title: "Clarity", desc: "We keep our content simple and direct." },
+];
+
+const COVERAGE = [
+  "Local news in Lebanon",
+  "Social and political developments",
+  "Breaking news and current events",
+  "Public interest stories",
+];
 
 export default function AboutPage() {
   return (
-    <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="flex items-center gap-3 mb-10">
-        <div className="w-1 h-8 bg-accent rounded-full" />
-        <h1 className="text-3xl font-bold text-ink">About Us</h1>
-      </div>
+    <main id="main" className="pb-20 pt-10">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Manifesto */}
+        <header className="grid gap-10 border-b-[3px] border-line-strong pb-14 lg:grid-cols-12 lg:items-end">
+          <div className="lg:col-span-8">
+            <p className="kicker animate-rise text-accent-ink">About Tollab Nation</p>
+            <h1
+              className="animate-rise mt-5 display text-6xl uppercase leading-[0.88] sm:text-8xl lg:text-9xl"
+              style={{ "--d": 1 } as React.CSSProperties}
+            >
+              To inform, <span className="text-red">not to influence.</span>
+            </h1>
+            <p
+              lang="ar"
+              dir="rtl"
+              className="animate-rise mt-8 text-2xl font-semibold leading-relaxed text-ink-soft sm:text-3xl"
+              style={{ "--d": 2 } as React.CSSProperties}
+            >
+              نكتب الأمر الواقع بقلم حر، إعلام غير مأجور وغير ممول، لضمان الشفافية
+            </p>
+          </div>
+          <div className="hidden justify-end lg:col-span-4 lg:flex">
+            <Mark animated className="h-56 w-auto text-ink" />
+          </div>
+        </header>
 
-      <div className="space-y-10 text-ink-soft leading-relaxed">
-        <section>
-          <h2 className="text-xl font-semibold text-ink mb-3">Welcome to Beirut Scope</h2>
-          <p className="mb-3">
-            At Beirut Scope, we believe in delivering news as it is — clear, honest, and without
-            influence.
-          </p>
-          <p className="text-right text-ink font-medium" dir="rtl">
-            نكتب الأمر الواقع بقلم حر، إعلام غير مأجور وغير ممول، لضمان الشفافية
-          </p>
-          <p className="mt-3">
-            We are an independent digital news platform focused on covering local and regional
-            stories with integrity. Our goal is to provide accurate information, thoughtful
-            perspectives, and straightforward reporting in a time where trust in media matters more
-            than ever.
-          </p>
+        {/* Story */}
+        <section className="grid gap-10 py-16 lg:grid-cols-12">
+          <h2 className="kicker text-ink-muted lg:col-span-3">Who we are</h2>
+          <div className="space-y-6 text-lg leading-relaxed text-ink-soft lg:col-span-7" data-reveal>
+            <p className="text-2xl font-medium leading-snug text-ink">
+              At Tollab Nation, we believe in sharing stories as they are — clear, honest, and without influence.
+            </p>
+            <p>
+              We are an independent digital news platform focused on covering local and regional stories with
+              integrity. Our goal is to provide accurate information, thoughtful perspectives, and straightforward
+              reporting in a time where trust in media matters more than ever.
+            </p>
+            <p>
+              We aim to present facts without bias, giving readers the ability to form their own opinions based on
+              reliable information. In a world full of noise, Tollab Nation focuses on what matters.
+            </p>
+          </div>
         </section>
 
-        <section>
-          <h2 className="text-xl font-semibold text-ink mb-3">Our Mission</h2>
-          <p className="text-lg font-medium text-ink mb-3">To inform, not to influence.</p>
-          <p>
-            We aim to present facts without bias, giving readers the ability to form their own
-            opinions based on reliable information.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="text-xl font-semibold text-ink mb-3">What We Cover</h2>
-          <ul className="space-y-2">
-            {[
-              "Local news in Lebanon",
-              "Social and political developments",
-              "Breaking news and current events",
-              "Public interest stories",
-            ].map((item) => (
-              <li key={item} className="flex items-start gap-2">
-                <span className="mt-2 w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
-                {item}
+        {/* Coverage */}
+        <section className="grid gap-10 border-t border-line py-16 lg:grid-cols-12">
+          <h2 className="kicker text-ink-muted lg:col-span-3">What we cover</h2>
+          <ul className="grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-2 lg:col-span-9">
+            {COVERAGE.map((item, i) => (
+              <li key={item} className="flex items-baseline gap-4 bg-page p-6" data-reveal>
+                <span className="font-mono text-sm text-accent-ink">0{i + 1}</span>
+                <span className="display text-3xl uppercase">{item}</span>
               </li>
             ))}
           </ul>
         </section>
 
-        <section>
-          <h2 className="text-xl font-semibold text-ink mb-4">Our Values</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {[
-              {
-                title: "Independence",
-                desc: "We are not funded or controlled by any external entity.",
-              },
-              {
-                title: "Transparency",
-                desc: "We are open about how we operate.",
-              },
-              {
-                title: "Accuracy",
-                desc: "We strive to report verified and factual information.",
-              },
-              {
-                title: "Clarity",
-                desc: "We keep our content simple and direct.",
-              },
-            ].map(({ title, desc }) => (
-              <div key={title} className="bg-card border border-line rounded-lg p-4">
-                <p className="font-semibold text-ink mb-1">{title}</p>
-                <p className="text-sm text-ink-muted">{desc}</p>
+        {/* Values */}
+        <section className="grid gap-10 border-t border-line py-16 lg:grid-cols-12">
+          <h2 className="kicker text-ink-muted lg:col-span-3">Our values</h2>
+          <div className="grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:col-span-9">
+            {VALUES.map(({ title, desc }) => (
+              <div key={title} data-reveal>
+                <div className="h-[3px] w-10 bg-red" />
+                <h3 className="mt-4 display text-4xl uppercase">{title}</h3>
+                <p className="mt-2 text-ink-soft">{desc}</p>
               </div>
             ))}
           </div>
         </section>
 
-        <section>
-          <h2 className="text-xl font-semibold text-ink mb-3">Why Beirut Scope</h2>
-          <p className="mb-3">
-            In a world full of noise, Beirut Scope focuses on what matters.
-          </p>
-          <p>
-            We aim to be a trusted source for readers looking for real stories without hidden
-            agendas.
-          </p>
-        </section>
-
-        <section className="bg-card border border-line rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-ink mb-3">Contact Us</h2>
-          <div className="space-y-2 text-sm">
-            <p>
-              <span className="text-ink-muted">Email: </span>
-              <a
-                href="mailto:beirutscope@gmail.com"
-                className="text-accent hover:underline"
-              >
-                beirutscope@gmail.com
+        {/* Contact */}
+        <section className="grid gap-10 border-t border-line py-16 lg:grid-cols-12">
+          <h2 className="kicker text-ink-muted lg:col-span-3">Get in touch</h2>
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between lg:col-span-9">
+            <div className="space-y-2 text-lg">
+              <a href={`mailto:${SITE.email}`} className="link-wipe block font-semibold">{SITE.email}</a>
+              <a href={SITE.whatsappDirect} target="_blank" rel="noopener noreferrer" className="link-wipe block font-semibold">
+                {SITE.phone}
               </a>
-            </p>
-            <p>
-              <span className="text-ink-muted">WhatsApp: </span>
-              <a
-                href="https://wa.me/96176312540"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-accent hover:underline"
-              >
-                +961 76 312 540
-              </a>
-            </p>
+            </div>
+            <Link
+              href="/contact"
+              className="group inline-flex h-12 items-center gap-2 self-start rounded-full bg-ink px-6 font-semibold text-page transition-colors hover:bg-accent hover:text-white"
+            >
+              Contact us <ArrowIcon size={16} className="arrow-nudge" />
+            </Link>
           </div>
         </section>
+
+        <ChannelCta />
       </div>
     </main>
   );

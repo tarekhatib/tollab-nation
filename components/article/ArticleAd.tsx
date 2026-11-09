@@ -9,21 +9,22 @@ interface Props {
 export default function ArticleAd({ imageUrl, linkUrl, text }: Props) {
   return (
     <div className="my-6">
-      <p className="text-[10px] uppercase tracking-widest text-ink-muted mb-2 font-medium">Sponsored</p>
+      <p className="kicker text-ink-muted mb-2">Sponsored</p>
       <a
         href={linkUrl}
         target="_blank"
         rel="noopener noreferrer sponsored"
-        className="block rounded-xl overflow-hidden border border-line hover:opacity-90 transition-opacity"
+        className="group block overflow-hidden border border-line"
       >
-        <div className="relative aspect-4/3 w-full">
+        {/* Keeps the ad's own aspect ratio (no crop) in every placement */}
+        <div className="img-zoom overflow-hidden">
           <Image
             src={imageUrl}
             alt="Advertisement"
-            fill
+            width={0}
+            height={0}
             sizes="(max-width: 768px) 100vw, 768px"
-            className="object-cover"
-            unoptimized={imageUrl.startsWith("http")}
+            className="block h-auto w-full"
           />
         </div>
         {text && (

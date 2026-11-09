@@ -29,7 +29,7 @@ export default function UpdateForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-canvas border border-line rounded-xl p-5 space-y-4">
+    <form onSubmit={handleSubmit} className="bg-canvas border border-line p-5 space-y-4">
       <h2 className="text-sm font-semibold text-ink">New Update</h2>
 
       <div>
@@ -41,7 +41,7 @@ export default function UpdateForm() {
           rows={2}
           dir="rtl"
           placeholder="النص بالعربية…"
-          className="w-full px-3 py-2 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent resize-none text-right"
+          className="w-full px-3 py-2 border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent resize-none text-right"
         />
       </div>
 
@@ -53,7 +53,7 @@ export default function UpdateForm() {
           onChange={(e) => setTextEn(e.target.value)}
           rows={2}
           placeholder="Update text in English…"
-          className="w-full px-3 py-2 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent resize-none"
+          className="w-full px-3 py-2 border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent resize-none"
         />
       </div>
 
@@ -80,7 +80,7 @@ export default function UpdateForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="px-4 py-2 bg-accent text-white text-sm font-semibold rounded-lg hover:bg-accent/90 transition-colors disabled:opacity-50"
+          className="px-4 py-2 bg-accent text-white text-sm font-semibold rounded-full hover:bg-accent-hover transition-colors disabled:opacity-50"
         >
           {isPending ? "Posting…" : "Post update"}
         </button>

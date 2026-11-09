@@ -1,70 +1,143 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-:root {
-  --accent:       #C8102E;
-  --accent-hover: #A30D24;
+/* `dark:` follows the data-theme attribute set before first paint. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
-  --bg-page:    #F8F8F8;
+/* ─────────────────────────────────────────────────────────────
+   Tollab Nation — brand tokens (Cap Light refresh)
+   Ink #0A0A0A · Red #ED1C24 · Paper #F4F2EE
+   --red is the exact brand red, used for the mark and graphics.
+   --accent is a hair deeper so white text on it passes WCAG AA.
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --red:          #ED1C24;
+  --accent:       #E0141C;
+  --accent-hover: #B80F16;
+  --accent-ink:   #C4121A; /* red used as text on paper */
+
+  --bg-page:    #F4F2EE;
   --bg-card:    #FFFFFF;
-  --bg-header:  #F4F4F5;
+  --bg-header:  rgb(244 242 238 / 0.86);
   --bg-footer:  #0A0A0A;
   --bg-canvas:  #FFFFFF;
-  --bg-surface: #F4F4F4;
+  --bg-surface: #ECE9E3;
+  --bg-inverse: #0A0A0A;
 
-  --text-primary:   #111111;
-  --text-secondary: #555555;
-  --text-muted:     #888888;
-  --text-footer:    #D1D1D1;
+  --text-primary:   #0A0A0A;
+  --text-secondary: #3B3935;
+  --text-muted:     #6B675F;
+  --text-footer:    #D9D5CD;
+  --text-inverse:   #F4F2EE;
 
-  --border: #E5E5E5;
+  --border:        #DEDAD2;
+  --border-strong: #0A0A0A;
+
+  color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --accent:       #E0203A;
-    --accent-hover: #C8102E;
+:root[data-theme="dark"] {
+  --accent:       #E0141C;
+  --accent-hover: #FF2D35;
+  --accent-ink:   #FF4C52;
 
-    --bg-page:    #111111;
-    --bg-card:    #1C1C1C;
-    --bg-header:  #161616;
-    --bg-footer:  #0A0A0A;
-    --bg-canvas:  #1C1C1C;
-    --bg-surface: #181818;
+  --bg-page:    #0B0B0B;
+  --bg-card:    #141414;
+  --bg-header:  rgb(11 11 11 / 0.82);
+  --bg-footer:  #000000;
+  --bg-canvas:  #141414;
+  --bg-surface: #181818;
+  --bg-inverse: #F4F2EE;
 
-    --text-primary:   #F0F0F0;
-    --text-secondary: #AAAAAA;
-    --text-muted:     #666666;
-    --text-footer:    #D1D1D1;
+  --text-primary:   #F4F2EE;
+  --text-secondary: #C4C0B8;
+  --text-muted:     #8E8A82;
+  --text-footer:    #C4C0B8;
+  --text-inverse:   #0A0A0A;
 
-    --border: #2A2A2A;
-  }
+  --border:        #262624;
+  --border-strong: #F4F2EE;
+
+  color-scheme: dark;
+}
+
+/* Ink surface that stays black in both themes (masthead). Children using
+   the ink/line/page tokens automatically render light-on-black. */
+.theme-ink {
+  --bg-page:        #0A0A0A;
+  --bg-header:      #0A0A0A;
+  --text-primary:   #F4F2EE;
+  --text-secondary: #C4C0B8;
+  --text-muted:     #8E8A82;
+  --border:         #262624;
+  --border-strong:  #F4F2EE;
+  --accent-ink:     #FF4C52;
+  color: var(--text-primary);
 }
 
 @theme inline {
+  --color-red:          var(--red);
   --color-accent:       var(--accent);
   --color-accent-hover: var(--accent-hover);
+  --color-accent-ink:   var(--accent-ink);
 
-  --color-page:   var(--bg-page);
-  --color-card:   var(--bg-card);
-  --color-header: var(--bg-header);
-  --color-footer: var(--bg-footer);
-
-  --color-ink:        var(--text-primary);
-  --color-ink-soft:   var(--text-secondary);
-  --color-ink-muted:  var(--text-muted);
-  --color-ink-footer: var(--text-footer);
-
-  --color-line: var(--border);
-
+  --color-page:    var(--bg-page);
+  --color-card:    var(--bg-card);
+  --color-header:  var(--bg-header);
+  --color-footer:  var(--bg-footer);
   --color-canvas:  var(--bg-canvas);
   --color-surface: var(--bg-surface);
+  --color-inverse: var(--bg-inverse);
+
+  --color-ink:         var(--text-primary);
+  --color-ink-soft:    var(--text-secondary);
+  --color-ink-muted:   var(--text-muted);
+  --color-ink-footer:  var(--text-footer);
+  --color-ink-inverse: var(--text-inverse);
+
+  --color-line:        var(--border);
+  --color-line-strong: var(--border-strong);
+
+  --font-sans:  var(--font-archivo), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-big-shoulders), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
+  --font-ar:    var(--font-arabic), var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono:  var(--font-plex-mono), var(--font-arabic), ui-monospace, monospace;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+  scroll-padding-top: 6rem;
+  /* App feel on touch screens: no grey tap flash, no double-tap zoom delay */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 body {
   background-color: var(--bg-page);
   color: var(--text-primary);
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "kern";
+}
+
+/* Arabic runs get the Arabic face first and more generous leading */
+:lang(ar),
+[dir="rtl"] {
+  font-family: var(--font-ar);
+}
+
+::selection {
+  background: var(--red);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 button:not(:disabled),
@@ -74,59 +147,342 @@ label,
 summary,
 [role="button"],
 [role="switch"] {
-  cursor: pointer !important;
-}
-
-@keyframes ticker-scroll {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.ticker-track {
-  animation: ticker-scroll 14s linear infinite;
-}
-
-@media (min-width: 640px) {
-  .ticker-track {
-    animation-duration: 22s;
-  }
-}
-
-.ticker-track:hover {
-  animation-play-state: paused;
-}
-
-.article-prose {
-  --tw-prose-body:        var(--text-primary);
-  --tw-prose-headings:    var(--text-primary);
-  --tw-prose-links:       var(--accent);
-  --tw-prose-bold:        var(--text-primary);
-  --tw-prose-code:        var(--text-primary);
-  --tw-prose-quotes:      var(--text-secondary);
-  --tw-prose-captions:    var(--text-muted);
-  --tw-prose-hr:          var(--border);
+  cursor: pointer;
 }
 
 [dir="auto"] {
   text-align: start;
 }
 
-/* Explicit utility fallback — ensures bg-canvas / bg-surface always work
-   even before Tailwind re-compiles the new @theme entries */
-@layer utilities {
-  .bg-canvas  { background-color: var(--bg-canvas); }
-  .bg-surface { background-color: var(--bg-surface); }
+/* ── Type helpers ─────────────────────────────────────────── */
+@utility font-wide {
+  font-stretch: 112%;
+}
+@utility font-condensed {
+  font-stretch: 85%;
+}
+/* Display headings in the wordmark face: Big Shoulders at display optical size, heavy. */
+@utility display {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 72;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+@utility kicker {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
-/* ProseMirror / TipTap — mobile text interaction */
+/* Headline underline that wipes in on hover (works for RTL too) */
+@utility link-wipe {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 0.08em;
+  background-repeat: no-repeat;
+  background-position: 100% 100%;
+  transition: background-size 0.45s var(--ease-out-expo), color 0.2s;
+  text-decoration: none;
+}
+
+.link-wipe:focus-visible {
+  background-size: 100% 0.08em;
+  background-position: 0% 100%;
+}
+/* Hover effects only where a real pointer hovers — no "stuck" states after a tap */
+@media (hover: hover) {
+  .group:hover .link-wipe,
+  .link-wipe:hover {
+    background-size: 100% 0.08em;
+    background-position: 0% 100%;
+  }
+}
+
+[dir="rtl"].link-wipe,
+[dir="rtl"] .link-wipe {
+  background-position: 0% 100%;
+}
+.group:hover [dir="rtl"].link-wipe {
+  background-position: 100% 100%;
+}
+
+/* ── Motion ───────────────────────────────────────────────── */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes settle {
+  from { transform: scale(1.06); }
+  to   { transform: scale(1); }
+}
+@keyframes cap-drop {
+  0%   { transform: translateY(-38%) rotate(-14deg); opacity: 0; }
+  60%  { transform: translateY(4%) rotate(3deg); opacity: 1; }
+  100% { transform: none; opacity: 1; }
+}
+@keyframes stem-grow {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+@keyframes leg-in {
+  from { transform: translateY(18%); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+@keyframes pulse-ring {
+  0%   { transform: scale(1); opacity: 0.55; }
+  80%, 100% { transform: scale(2.6); opacity: 0; }
+}
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes ticker-scroll-rtl {
+  from { transform: translateX(0); }
+  to   { transform: translateX(50%); }
+}
+@keyframes menu-item {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes grow-x {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes reveal-img {
+  from { clip-path: inset(0 0 100% 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+@keyframes progress {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+@keyframes pop {
+  0%   { transform: scale(0.6); }
+  100% { transform: scale(1); }
+}
+@keyframes sheet-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-rise {
+    animation: rise 0.7s var(--ease-out-expo) both;
+    animation-delay: calc(var(--d, 0) * 70ms);
+  }
+  .animate-settle {
+    animation: settle 1.4s var(--ease-out-expo) both;
+  }
+
+  /* Logo: the stem grows, the N legs rise, the cap drops on */
+  .tn-mark .tn-stem { transform-box: fill-box; transform-origin: bottom; animation: stem-grow 0.55s var(--ease-out-expo) both; }
+  .tn-mark .tn-leg  { transform-box: fill-box; animation: leg-in 0.6s var(--ease-out-expo) 0.12s both; }
+  .tn-mark .tn-cap  { transform-box: fill-box; transform-origin: 50% 100%; animation: cap-drop 0.8s var(--ease-out-expo) 0.3s both; }
+  /* Hover tilt lives on a wrapper group, so it never interrupts (or replays) the
+     cap's entrance animation — the cap stays visible the whole time. */
+  .tn-mark { overflow: visible; }
+  .tn-mark .tn-cap-tilt { transform-box: fill-box; transform-origin: 50% 100%; transition: transform 0.5s var(--ease-spring); }
+  a:hover .tn-mark .tn-cap-tilt { transform: translateY(-10%) rotate(-7deg); }
+
+  .ticker-track {
+    animation: ticker-scroll var(--ticker-duration, 60s) linear infinite;
+  }
+  .ticker-track:hover,
+  .ticker-track:focus-within {
+    animation-play-state: paused;
+  }
+
+  .live-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: inherit;
+    animation: pulse-ring 1.8s var(--ease-out-expo) infinite;
+  }
+
+  .menu-item {
+    animation: menu-item 0.55s var(--ease-out-expo) both;
+    animation-delay: calc(60ms + var(--i, 0) * 40ms);
+  }
+
+  .rule-grow {
+    transform-origin: left;
+    animation: grow-x 0.9s var(--ease-out-expo) both;
+  }
+
+  /* Page enters after client-side navigation only (never delays first paint) */
+  :root[data-navigated] .page-enter {
+    animation: rise 0.5s var(--ease-out-expo) both;
+  }
+
+  /* Scroll-driven reveals: zero JavaScript, composited, skipped where unsupported */
+  @supports (animation-timeline: view()) {
+    [data-reveal] {
+      animation: reveal-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+    [data-reveal="img"] {
+      animation-name: reveal-img;
+    }
+    .read-progress {
+      animation: progress linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+
+  .img-zoom img {
+    transition: transform 0.9s var(--ease-out-expo), filter 0.4s;
+  }
+  .arrow-nudge {
+    transition: transform 0.35s var(--ease-spring);
+  }
+  @media (hover: hover) {
+    .group:hover .img-zoom img {
+      transform: scale(1.045);
+    }
+    .group:hover .arrow-nudge,
+    .arrow-nudge:hover {
+      transform: translateX(4px);
+    }
+    [dir="rtl"] .group:hover .arrow-nudge {
+      transform: translateX(-4px);
+    }
+  }
+
+  /* Touch: cards and buttons give way under the finger, like native controls */
+  .press {
+    transition-property: transform, color, background-color, border-color, opacity;
+    transition-duration: 0.2s;
+    transition-timing-function: var(--ease-out-expo);
+  }
+  .press:active {
+    transform: scale(0.94);
+  }
+  @media (hover: none) {
+    article.group > a {
+      transition: opacity 0.2s, transform 0.25s var(--ease-out-expo);
+    }
+    article.group > a:active {
+      opacity: 0.72;
+      transform: scale(0.985);
+    }
+  }
+
+  .animate-pop {
+    display: inline-flex;
+    animation: pop 0.45s var(--ease-spring) both;
+  }
+  .sheet-in {
+    animation: sheet-in 0.4s var(--ease-out-expo) both;
+  }
+}
+
+@supports not (animation-timeline: scroll()) {
+  .read-progress { display: none; }
+}
+
+/* Header: hides on scroll down, returns on scroll up */
+.site-header {
+  transition: transform 0.45s var(--ease-out-expo), box-shadow 0.3s;
+}
+:root[data-scroll="down"] .site-header {
+  transform: translateY(calc(-100% - 1px));
+}
+:root[data-scrolled] .site-header {
+  box-shadow: 0 1px 0 var(--border);
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-surface) 25%, var(--border) 50%, var(--bg-surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+/* Hide scrollbars on horizontal rails */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ── Article prose ────────────────────────────────────────── */
+.article-prose {
+  --tw-prose-body:     var(--text-primary);
+  --tw-prose-headings: var(--text-primary);
+  --tw-prose-links:    var(--accent-ink);
+  --tw-prose-bold:     var(--text-primary);
+  --tw-prose-code:     var(--text-primary);
+  --tw-prose-quotes:   var(--text-primary);
+  --tw-prose-captions: var(--text-muted);
+  --tw-prose-hr:       var(--border);
+  --tw-prose-bullets:  var(--red);
+  --tw-prose-counters: var(--text-muted);
+  font-size: 1.125rem;
+  line-height: 1.85;
+}
+/* Arabic glyphs read smaller than Latin at the same size: give them the Arabic face, a size bump and air. */
+.article-prose :where(p, li, blockquote, h2, h3, h4):dir(rtl) {
+  font-family: var(--font-ar);
+  font-size: 1.12em;
+  line-height: 2;
+}
+.article-prose :where(h2, h3, h4):dir(rtl) { line-height: 1.6; }
+.article-prose blockquote {
+  border-inline-start: 3px solid var(--red);
+  border-left-width: 0;
+  padding-inline-start: 1.25rem;
+  font-style: normal;
+  font-size: 1.25em;
+  font-weight: 500;
+}
+.article-prose blockquote p::before,
+.article-prose blockquote p::after { content: none; }
+.article-prose a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.article-prose img { border-radius: 2px; }
+/* Editor leftovers: empty paragraphs shouldn't open big gaps in the story */
+.article-prose p:empty { display: none; }
+
+/* Swipeable story rails (phones) */
+.rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: min(78%, 20rem);
+  gap: 1rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 1rem;
+  padding-inline: 1rem;
+  margin-inline: -1rem;
+  scrollbar-width: none;
+}
+.rail::-webkit-scrollbar { display: none; }
+.rail > * { scroll-snap-align: start; }
+
+/* ── Admin editor (TipTap) ────────────────────────────────── */
 .ProseMirror {
   -webkit-user-select: text;
   user-select: text;
   touch-action: auto;
   cursor: text;
 }
-
 .ProseMirror * {
   -webkit-user-select: text;
   user-select: text;
 }
+
+/* Scroll-driven reveals track vertical scrolling; inside a sideways rail they'd never fire */
+.rail [data-reveal] { animation: none; }

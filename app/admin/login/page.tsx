@@ -3,7 +3,7 @@
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { Logo } from "@/components/brand/Logo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,35 +33,40 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface px-4">
+    <div className="flex min-h-screen flex-col bg-page">
+      <div className="theme-ink flex h-16 items-center justify-center border-b border-line bg-header pt-[env(safe-area-inset-top)]">
+        <Logo size="sm" animated />
+      </div>
+      <div className="flex flex-1 items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
-        <div className="flex justify-center mb-8">
-          <Image src="/logo.svg" alt="Beirut Scope" width={160} height={40} className="dark:invert" />
-        </div>
-
-        <div className="bg-canvas border border-line rounded-xl p-8 shadow-sm">
-          <h1 className="text-xl font-bold text-ink mb-1">Admin Login</h1>
-          <p className="text-sm text-ink-soft mb-6">Sign in to access the dashboard</p>
+        <div className="border-t-[3px] border-line-strong bg-canvas p-8">
+          <p className="kicker text-accent-ink">Newsroom</p>
+          <h1 className="display mt-3 text-5xl uppercase leading-[0.9] text-ink">Sign in</h1>
+          <p className="mb-6 mt-3 text-sm text-ink-muted">Admin access to Tollab Nation.</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-ink mb-1">Email</label>
+              <label htmlFor="email" className="block text-sm font-medium text-ink mb-1">Email</label>
               <input
+                id="email"
+                autoComplete="username"
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                className="w-full px-3 py-2 border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-ink mb-1">Password</label>
+              <label htmlFor="password" className="block text-sm font-medium text-ink mb-1">Password</label>
               <input
+                id="password"
+                autoComplete="current-password"
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                className="w-full px-3 py-2 border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent"
               />
             </div>
 
@@ -72,12 +77,13 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2 px-4 bg-accent text-white rounded-lg text-sm font-semibold hover:bg-accent/90 transition-colors disabled:opacity-50"
+              className="h-11 w-full px-4 bg-accent text-white rounded-full text-sm font-semibold hover:bg-accent-hover transition-colors disabled:opacity-50"
             >
               {loading ? "Signing in…" : "Sign in"}
             </button>
           </form>
         </div>
+      </div>
       </div>
     </div>
   );

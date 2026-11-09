@@ -23,3 +23,5 @@ prisma/dev.db-journal
 next-env.d.ts
 .vercel
 .env*.local
+.next-verify/
+.claude/settings.local.json

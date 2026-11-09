@@ -1,6 +1,6 @@
 Plan
 
-- Identify which Beirut Scope URL shows the small WhatsApp preview: homepage, category page, article page, or another link.
+- Identify which Tollab Nation URL shows the small WhatsApp preview: homepage, category page, article page, or another link.
 - Verify metadata for that URL:
   - open graph image tags
   - twitter card settings

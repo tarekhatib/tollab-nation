@@ -6,7 +6,7 @@ import ArticleActions from "@/components/admin/ArticleActions";
 async function getAllArticles() {
   return prisma.article.findMany({
     orderBy: { publishedAt: "desc" },
-    include: { category: true },
+    include: { category: true, author: { select: { name: true } } },
   });
 }
 
@@ -16,21 +16,21 @@ export default async function ArticlesPage() {
   const articles = await getAllArticles();
 
   return (
-    <div className="max-w-5xl">
-      <div className="flex items-center justify-between mb-6 sm:mb-8">
+    <div>
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b-[3px] border-line-strong pb-5">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Articles</h1>
-          <p className="text-sm text-ink-soft mt-1">{articles.length} total</p>
+          <h1 className="display text-5xl uppercase leading-[0.9] text-ink sm:text-6xl">Articles</h1>
+          <p className="mt-3 text-sm text-ink-muted">{articles.length} total</p>
         </div>
         <Link
           href="/admin/articles/new"
-          className="px-4 py-2 bg-accent text-white text-sm font-semibold rounded-lg hover:bg-accent/90 transition-colors"
+          className="px-4 py-2 bg-accent text-white text-sm font-semibold rounded-full hover:bg-accent-hover transition-colors"
         >
           + New article
         </Link>
       </div>
 
-      <div className="bg-canvas border border-line rounded-xl overflow-hidden">
+      <div className="bg-canvas border border-line overflow-hidden">
         {articles.length === 0 ? (
           <div className="px-6 py-16 text-center">
             <p className="text-ink-soft text-sm">No articles yet.</p>
@@ -52,7 +52,7 @@ export default async function ArticlesPage() {
                     )}
                   </div>
                   <p className="text-xs text-ink-soft mt-0.5">
-                    {article.category.name} · {formatDate(article.publishedAt)} · {article.clicks} clicks · {article.views} views
+                    {article.category.name} · {article.author?.name ?? "No author"} · {formatDate(article.publishedAt)} · {article.clicks} clicks · {article.views} views
                   </p>
                 </div>
 
@@ -60,7 +60,7 @@ export default async function ArticlesPage() {
                   <ArticleActions id={article.id} isFeatured={article.isFeatured} />
                   <Link
                     href={`/admin/articles/${article.id}/edit`}
-                    className="px-2 py-1 rounded text-xs font-medium text-ink-soft border border-line hover:text-accent hover:border-accent transition-colors"
+                    className="inline-flex h-8 items-center rounded-full px-3 text-xs font-medium text-ink-soft border border-line hover:text-accent hover:border-accent transition-colors"
                   >
                     Edit
                   </Link>

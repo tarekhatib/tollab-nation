@@ -140,16 +140,16 @@ export default function AdForm({ articles, ad }: Props) {
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
       {error && (
-        <div className="px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
+        <div className="px-4 py-3 bg-red-50 border border-red-200 text-sm text-red-700">
           {error}
         </div>
       )}
 
       {/* Image */}
-      <div className="bg-canvas border border-line rounded-xl p-5 space-y-3">
+      <div className="bg-canvas border border-line p-5 space-y-3">
         <label className="block text-sm font-semibold text-ink">Ad Image</label>
         {imageUrl && (
-          <div className="rounded-lg overflow-hidden border border-line bg-surface">
+          <div className=" overflow-hidden border border-line bg-surface">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={imageUrl} alt="Ad preview" className="w-full h-auto block" />
           </div>
@@ -160,13 +160,13 @@ export default function AdForm({ articles, ad }: Props) {
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
             placeholder="https://… or upload →"
-            className="flex-1 min-w-0 px-4 py-2.5 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+            className="flex-1 min-w-0 px-4 py-2.5 border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent"
           />
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="px-4 py-2.5 rounded-lg border border-line bg-surface text-sm text-ink-soft hover:text-ink hover:bg-surface transition-colors shrink-0 disabled:opacity-50"
+            className="px-4 py-2.5 rounded-full border border-line bg-surface text-sm text-ink-soft hover:text-ink hover:bg-surface transition-colors shrink-0 disabled:opacity-50"
           >
             {uploading ? "Uploading…" : "Upload"}
           </button>
@@ -175,7 +175,7 @@ export default function AdForm({ articles, ad }: Props) {
       </div>
 
       {/* Link URL */}
-      <div className="bg-canvas border border-line rounded-xl p-5 space-y-2">
+      <div className="bg-canvas border border-line p-5 space-y-2">
         <label className="block text-sm font-semibold text-ink">Destination Link</label>
         <input
           type="url"
@@ -183,12 +183,12 @@ export default function AdForm({ articles, ad }: Props) {
           onChange={(e) => setLinkUrl(e.target.value)}
           placeholder="https://example.com/…"
           required
-          className="w-full px-4 py-2.5 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+          className="w-full px-4 py-2.5 border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent"
         />
       </div>
 
       {/* Optional caption */}
-      <div className="bg-canvas border border-line rounded-xl p-5 space-y-2">
+      <div className="bg-canvas border border-line p-5 space-y-2">
         <label className="block text-sm font-semibold text-ink">
           Caption <span className="text-ink-muted font-normal">(optional)</span>
         </label>
@@ -197,19 +197,19 @@ export default function AdForm({ articles, ad }: Props) {
           onChange={(e) => setText(e.target.value)}
           placeholder="Short text shown below the ad image…"
           rows={2}
-          className="w-full px-4 py-2.5 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent resize-none"
+          className="w-full px-4 py-2.5 border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent resize-none"
         />
       </div>
 
       {/* Position */}
-      <div className="bg-canvas border border-line rounded-xl p-5 space-y-3">
+      <div className="bg-canvas border border-line p-5 space-y-3">
         <p className="text-sm font-semibold text-ink">Ad Position</p>
         <p className="text-xs text-ink-muted -mt-1">Each article supports one ad per position.</p>
         <div className="space-y-2">
           {POSITIONS.map((p) => (
             <label
               key={p.value}
-              className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+              className={`flex items-start gap-3 p-3 border cursor-pointer transition-colors ${
                 position === p.value
                   ? "border-accent bg-accent/5"
                   : "border-line hover:bg-surface"
@@ -232,7 +232,7 @@ export default function AdForm({ articles, ad }: Props) {
       </div>
 
       {/* Duration */}
-      <div className="bg-canvas border border-line rounded-xl p-5 space-y-3">
+      <div className="bg-canvas border border-line p-5 space-y-3">
         <div>
           <label className="block text-sm font-semibold text-ink mb-1">
             Duration <span className="text-ink-muted font-normal">(optional)</span>
@@ -247,13 +247,13 @@ export default function AdForm({ articles, ad }: Props) {
               value={durationDays}
               onChange={(e) => setDurationDays(e.target.value)}
               placeholder="e.g. 30"
-              className="w-32 px-4 py-2.5 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+              className="w-32 px-4 py-2.5 border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent"
             />
             <span className="text-sm text-ink-soft">days from now</span>
           </div>
         </div>
         {existingExpiry && (
-          <div className={`text-xs px-3 py-2 rounded-lg ${
+          <div className={`text-xs px-3 py-2 ${
             remainingDays !== null && remainingDays <= 0
               ? "bg-red-50 border border-red-200 text-red-700"
               : remainingDays !== null && remainingDays <= 7
@@ -270,7 +270,7 @@ export default function AdForm({ articles, ad }: Props) {
       </div>
 
       {/* Active toggle */}
-      <div className="bg-canvas border border-line rounded-xl p-5">
+      <div className="bg-canvas border border-line p-5">
         <label className="flex items-center justify-between cursor-pointer">
           <span className="text-sm font-semibold text-ink">Active</span>
           <button
@@ -293,7 +293,7 @@ export default function AdForm({ articles, ad }: Props) {
       </div>
 
       {/* Article targeting */}
-      <div className="bg-canvas border border-line rounded-xl p-5 space-y-4">
+      <div className="bg-canvas border border-line p-5 space-y-4">
         <div>
           <p className="text-sm font-semibold text-ink mb-1">Show On</p>
           <div className="flex gap-4">
@@ -332,7 +332,7 @@ export default function AdForm({ articles, ad }: Props) {
                 {allSelected ? "Deselect all" : "Select all"}
               </button>
             </div>
-            <div className="max-h-64 overflow-y-auto divide-y divide-line rounded-lg border border-line">
+            <div className="max-h-64 overflow-y-auto divide-y divide-line border border-line">
               {articles.map((article) => (
                 <label
                   key={article.id}
@@ -360,14 +360,14 @@ export default function AdForm({ articles, ad }: Props) {
         <button
           type="submit"
           disabled={isPending || uploading}
-          className="px-6 py-2.5 bg-accent text-white text-sm font-medium rounded-lg hover:bg-accent-hover transition-colors disabled:opacity-50"
+          className="px-6 py-2.5 bg-accent text-white text-sm font-medium rounded-full hover:bg-accent-hover transition-colors disabled:opacity-50"
         >
           {isPending ? "Saving…" : ad ? "Save changes" : "Create ad"}
         </button>
         <button
           type="button"
           onClick={() => router.push("/admin/ads")}
-          className="px-6 py-2.5 bg-surface text-ink-soft text-sm font-medium rounded-lg hover:text-ink border border-line transition-colors"
+          className="px-6 py-2.5 bg-surface text-ink-soft text-sm font-medium rounded-full hover:text-ink border border-line transition-colors"
         >
           Cancel
         </button>

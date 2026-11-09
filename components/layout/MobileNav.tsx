@@ -1,66 +1,122 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
+import { Logo } from "@/components/brand/Logo";
+import { InstagramIcon, WhatsAppIcon } from "@/components/ui/Icons";
+import { SITE } from "@/lib/site";
 
 type Category = { id: number; name: string; slug: string };
 
-export default function MobileNav({ categories }: { categories: Category[] }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
+/** Full-screen sections sheet. Opened from the Menu tab in the bottom bar. */
+export default function MobileNav({
+  categories,
+  open,
+  onClose,
+}: {
+  categories: Category[];
+  open: boolean;
+  onClose: () => void;
+}) {
   useEffect(() => {
     if (!open) return;
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [open]);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open, onClose]);
+  const setOpen = (v: boolean) => !v && onClose();
+  const links = [
+    { href: "/updates", label: "Live updates" },
+    ...categories.map((c) => ({ href: `/${c.slug}`, label: c.name })),
+  ];
+  const secondary = [
+    { href: "/about", label: "About" },
+    { href: "/contact", label: "Contact" },
+    { href: "/contact?topic=partner", label: "Advertise with us" },
+  ];
 
   return (
-    <div ref={ref} className="md:hidden relative">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        aria-label={open ? "Close menu" : "Open menu"}
-        className="p-2 text-ink-soft hover:text-accent transition-colors"
-      >
-        {open ? (
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        ) : (
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        )}
-      </button>
+    <>
 
-      {open && (
-        <nav className="absolute right-0 top-full mt-1 w-48 bg-card border border-line rounded-lg shadow-lg py-1 z-50">
-          {categories.map((cat) => (
-            <Link
-              key={cat.id}
-              href={`/${cat.slug}`}
-              onClick={() => setOpen(false)}
-              className="block px-4 py-2 text-sm text-ink-soft hover:text-accent hover:bg-page transition-colors"
-            >
-              {cat.name}
-            </Link>
-          ))}
-          <div className="border-t border-line mt-1 pt-1">
-            <Link
-              href="/contact"
-              onClick={() => setOpen(false)}
-              className="block px-4 py-2 text-sm text-ink-soft hover:text-accent hover:bg-page transition-colors"
-            >
-              Contact
-            </Link>
-          </div>
-        </nav>
-      )}
-    </div>
+      {open &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu"
+            id="mobile-menu"
+            className="sheet-in fixed inset-0 z-[70] flex flex-col overflow-y-auto bg-page pb-[calc(4.25rem+env(safe-area-inset-bottom))] pt-[env(safe-area-inset-top)] text-ink md:hidden"
+          >
+            <div className="flex h-16 shrink-0 items-center justify-between border-b border-line px-4">
+              <Link href="/" className="text-ink" onClick={() => setOpen(false)}>
+                <Logo size="sm" />
+              </Link>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Close menu"
+                className="grid size-10 place-items-center rounded-full hover:bg-ink/5"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" aria-hidden="true">
+                  <path d="M6 6l12 12M18 6L6 18" />
+                </svg>
+              </button>
+            </div>
+
+            <nav className="flex-1 px-4 py-6" aria-label="Sections">
+              <ul>
+                {links.map((l, i) => (
+                  <li key={l.href} className="menu-item border-b border-line" style={{ "--i": i } as React.CSSProperties}>
+                    <Link
+                      href={l.href}
+                      onClick={() => setOpen(false)}
+                      className="flex items-center justify-between py-3 display text-4xl uppercase"
+                    >
+                      {l.label}
+                      {i === 0 && <span className="live-dot relative size-2 rounded-full bg-red" aria-hidden="true" />}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-3">
+                {secondary.map((l, i) => (
+                  <li key={l.href} className="menu-item" style={{ "--i": links.length + i } as React.CSSProperties}>
+                    <Link href={l.href} onClick={() => setOpen(false)} className="text-sm font-medium text-ink-soft">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            <div className="menu-item grid shrink-0 grid-cols-[1fr_auto] gap-2 p-4" style={{ "--i": links.length + 4 } as React.CSSProperties}>
+              <a
+                href={SITE.whatsappChannel}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-accent font-semibold text-white"
+              >
+                <WhatsAppIcon size={18} /> Follow on WhatsApp
+              </a>
+              <a
+                href={SITE.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="grid size-12 place-items-center rounded-full border border-line"
+              >
+                <InstagramIcon />
+              </a>
+            </div>
+          </div>,
+          document.body
+        )}
+    </>
   );
 }

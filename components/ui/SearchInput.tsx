@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
+import { SearchIcon } from "@/components/ui/Icons";
 
 export default function SearchInput({ defaultValue = "" }: { defaultValue?: string }) {
   const router = useRouter();
@@ -14,18 +15,22 @@ export default function SearchInput({ defaultValue = "" }: { defaultValue?: stri
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
+    <form onSubmit={handleSubmit} role="search" className="group relative">
+      <SearchIcon size={26} className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 text-ink-muted transition-colors group-focus-within:text-ink" />
       <input
         ref={inputRef}
         type="search"
+        name="q"
         defaultValue={defaultValue}
-        placeholder="Search articles..."
+        placeholder="Search stories… ابحث"
+        aria-label="Search stories"
         autoFocus
-        className="flex-1 px-4 py-2.5 rounded-lg border border-line bg-card text-ink placeholder:text-ink-muted text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+        dir="auto"
+        className="w-full border-0 border-b-[3px] border-line bg-transparent py-4 pl-10 pr-28 font-wide text-2xl font-semibold text-ink outline-none transition-colors placeholder:font-normal placeholder:text-ink-muted/70 focus:border-red sm:text-4xl"
       />
       <button
         type="submit"
-        className="px-5 py-2.5 bg-accent text-white text-sm font-semibold rounded-lg hover:bg-accent/90 transition-colors"
+        className="absolute right-0 top-1/2 h-11 -translate-y-1/2 rounded-full bg-ink px-5 text-sm font-semibold text-page transition-colors hover:bg-accent hover:text-white"
       >
         Search
       </button>

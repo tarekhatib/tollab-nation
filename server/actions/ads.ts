@@ -2,7 +2,6 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { del } from "@vercel/blob";
 
 type AdPayload = {
   imageUrl: string;
@@ -81,8 +80,6 @@ export async function updateAd(id: number, payload: AdPayload): Promise<ActionRe
   const conflict = await checkConflicts(payload.position, payload.showOnAll, articleIds, id);
   if (conflict) return { error: conflict };
 
-  const existing = await prisma.ad.findUnique({ where: { id }, select: { imageUrl: true } });
-
   await prisma.$transaction([
     prisma.adOnArticle.deleteMany({ where: { adId: id } }),
     prisma.ad.update({
@@ -97,15 +94,6 @@ export async function updateAd(id: number, payload: AdPayload): Promise<ActionRe
     }),
   ]);
 
-  // Delete old blob image if it was replaced
-  if (
-    existing?.imageUrl &&
-    existing.imageUrl !== payload.imageUrl &&
-    existing.imageUrl.includes(".blob.vercel-storage.com")
-  ) {
-    await del(existing.imageUrl).catch(() => null);
-  }
-
   revalidatePath("/admin/ads");
   return { success: true };
 }
@@ -115,10 +103,6 @@ export async function deleteAd(id: number) {
   if (!ad) return;
 
   await prisma.ad.delete({ where: { id } });
-
-  if (ad.imageUrl.includes(".blob.vercel-storage.com")) {
-    await del(ad.imageUrl).catch(() => null);
-  }
 
   revalidatePath("/admin/ads");
 }

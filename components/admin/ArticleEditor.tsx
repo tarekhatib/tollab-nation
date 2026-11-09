@@ -19,8 +19,16 @@ interface Category {
   slug: string;
 }
 
+interface AuthorOption {
+  id: number;
+  name: string;
+  isVerified: boolean;
+}
+
+
 interface Props {
   categories: Category[];
+  authors: AuthorOption[];
   article?: {
     id: number;
     title: string;
@@ -31,6 +39,7 @@ interface Props {
     coverImage: string | null;
     isFeatured: boolean;
     isDraft: boolean;
+    authorId: number | null;
   };
 }
 
@@ -153,12 +162,14 @@ const Divider = () => <span className="w-px h-5 bg-line mx-0.5" />;
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function ArticleEditor({ categories, article }: Props) {
+export default function ArticleEditor({ categories, authors, article }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [title, setTitle] = useState(article?.title ?? "");
   const [titleAr, setTitleAr] = useState(article?.titleAr ?? "");
   const [categoryId, setCategoryId] = useState(article?.categoryId ?? categories[0]?.id ?? 0);
+  // 0 = no byline ("Tollab Nation")
+  const [authorId, setAuthorId] = useState<number>(article?.authorId ?? 0);
   const [coverImage, setCoverImage] = useState(article?.coverImage ?? "");
   const [isFeatured, setIsFeatured] = useState(article?.isFeatured ?? false);
   const [slug, setSlug] = useState(article?.slug ?? "");
@@ -336,11 +347,12 @@ export default function ArticleEditor({ categories, article }: Props) {
           await updateArticle(article.id, {
             title, titleAr, slug: finalSlug, content, categoryId: Number(categoryId),
             coverImage: coverImage || undefined, isFeatured,
+            authorId: authorId || null,
             isDraft: asDraft,
             ...(article.isDraft && !asDraft && { publishedAt: new Date() }),
           });
         } else {
-          await createArticle({ title, titleAr, slug: finalSlug, content, categoryId: Number(categoryId), coverImage: coverImage || undefined, isFeatured, isDraft: asDraft });
+          await createArticle({ title, titleAr, slug: finalSlug, content, categoryId: Number(categoryId), coverImage: coverImage || undefined, isFeatured, authorId: authorId || null, isDraft: asDraft });
         }
         setIsDirty(false);
         router.push("/admin/articles");
@@ -359,6 +371,7 @@ export default function ArticleEditor({ categories, article }: Props) {
   }
 
   const previewCategory = categories.find((c) => c.id === Number(categoryId));
+  const selectedAuthor = authors.find((a) => a.id === authorId);
 
   return (
     <div className="flex gap-8 items-start max-w-6xl w-full min-w-0">
@@ -377,7 +390,7 @@ export default function ArticleEditor({ categories, article }: Props) {
               if (!slugEditedRef.current) setSlug(slugify(val));
             }}
             placeholder="Article title in English…"
-            className="w-full px-4 py-2.5 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full px-4 py-2.5 border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent"
           />
         </div>
         <div>
@@ -388,10 +401,42 @@ export default function ArticleEditor({ categories, article }: Props) {
             onChange={(e) => { setTitleAr(e.target.value); setIsDirty(true); }}
             placeholder="عنوان المقالة بالعربية…"
             dir="rtl"
-            className="w-full px-4 py-2.5 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent text-right"
+            className="w-full px-4 py-2.5 border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent text-right"
           />
         </div>
       </div>
+
+      <fieldset>
+        <legend className="block text-sm font-medium text-ink mb-2">Written by</legend>
+        <div className="flex flex-wrap gap-2" role="radiogroup">
+          {[{ id: 0, name: "Tollab Nation", isVerified: false }, ...authors].map((a) => {
+            const selected = authorId === a.id;
+            return (
+              <button
+                key={a.id}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                onClick={() => { setAuthorId(a.id); setIsDirty(true); }}
+                className={`flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                  selected ? "border-accent bg-accent/10 text-ink" : "border-line bg-surface text-ink-soft hover:text-ink"
+                }`}
+              >
+                {a.name}
+                {a.isVerified && (
+                  <svg width="13" height="13" viewBox="0 0 24 24" aria-label="Verified">
+                    <circle cx="12" cy="12" r="11" fill="#ED1C24" />
+                    <path d="M7.5 12.3l3 3 6-6.3" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </button>
+            );
+          })}
+        </div>
+        {authors.length === 0 && (
+          <p className="mt-2 text-xs text-ink-muted">No authors yet. Add them under Authors in the menu.</p>
+        )}
+      </fieldset>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
@@ -400,7 +445,7 @@ export default function ArticleEditor({ categories, article }: Props) {
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(Number(e.target.value))}
-              className="w-full px-4 py-2.5 pr-9 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent appearance-none"
+              className="w-full px-4 py-2.5 pr-9 border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent appearance-none"
             >
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
@@ -436,13 +481,13 @@ export default function ArticleEditor({ categories, article }: Props) {
               value={coverImage}
               onChange={(e) => { setCoverImage(e.target.value); setIsDirty(true); }}
               placeholder="https://… or upload →"
-              className="flex-1 min-w-0 w-0 px-4 py-2.5 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+              className="flex-1 min-w-0 w-0 px-4 py-2.5 border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent"
             />
             <button
               type="button"
               onClick={() => coverInputRef.current?.click()}
               disabled={coverUploading}
-              className="shrink-0 px-3 py-2.5 rounded-lg border border-line bg-surface text-ink-soft text-sm hover:text-ink hover:border-accent transition-colors disabled:opacity-50"
+              className="shrink-0 px-3 py-2.5 rounded-full border border-line bg-surface text-ink-soft text-sm hover:text-ink hover:border-accent transition-colors disabled:opacity-50"
             >
               {coverUploading ? "…" : <Icon d={icons.image} />}
             </button>
@@ -453,7 +498,7 @@ export default function ArticleEditor({ categories, article }: Props) {
 
       <div>
         <label className="block text-sm font-medium text-ink mb-1">Content</label>
-        <div className="rounded-lg border border-line bg-canvas">
+        <div className=" border border-line bg-canvas">
           {/* Toolbar */}
           <div className="sticky top-14 lg:top-0 z-20 flex flex-wrap items-center gap-0.5 px-2 py-1.5 border-b border-line bg-header rounded-t-lg">
             <ToolbarButton title="Bold" onClick={() => editor?.chain().focus().toggleBold().run()} active={editor?.isActive("bold")}>
@@ -523,7 +568,7 @@ export default function ArticleEditor({ categories, article }: Props) {
             setIsDirty(true);
           }}
           placeholder="article-slug"
-          className="w-full px-4 py-2.5 rounded-lg border border-line bg-surface text-ink text-sm font-mono focus:outline-none focus:ring-2 focus:ring-accent"
+          className="w-full px-4 py-2.5 border border-line bg-surface text-ink text-sm font-mono focus:outline-none focus:ring-2 focus:ring-accent"
         />
       </div>
 
@@ -533,7 +578,7 @@ export default function ArticleEditor({ categories, article }: Props) {
         <button
           type="submit"
           disabled={isPending}
-          className="px-5 py-2 bg-accent text-white text-sm font-semibold rounded-lg hover:bg-accent/90 transition-colors disabled:opacity-50"
+          className="px-5 py-2 bg-accent text-white text-sm font-semibold rounded-full hover:bg-accent-hover transition-colors disabled:opacity-50"
         >
           {pendingAction === "publish"
             ? "Saving…"
@@ -545,7 +590,7 @@ export default function ArticleEditor({ categories, article }: Props) {
           type="button"
           disabled={isPending}
           onClick={() => save(true)}
-          className="px-5 py-2 text-sm font-semibold rounded-lg border border-line text-ink-soft hover:text-ink hover:border-accent transition-colors disabled:opacity-50"
+          className="px-5 py-2 text-sm font-semibold rounded-full border border-line text-ink-soft hover:text-ink hover:border-accent transition-colors disabled:opacity-50"
         >
           {pendingAction === "draft" ? "Saving…" : "Save as Draft"}
         </button>
@@ -564,7 +609,7 @@ export default function ArticleEditor({ categories, article }: Props) {
 
     <div className="w-64 xl:w-72 shrink-0 sticky top-6 hidden lg:block">
       <p className="text-xs font-semibold uppercase tracking-wider text-ink-muted mb-3">Preview</p>
-      <div className="rounded-lg border border-line overflow-hidden bg-card">
+      <div className=" border border-line overflow-hidden bg-card">
         {coverImage ? (
           <div className="relative aspect-video overflow-hidden">
             <img src={coverImage} alt="" className="w-full h-full object-cover" />
@@ -582,6 +627,9 @@ export default function ArticleEditor({ categories, article }: Props) {
           )}
           <p className="font-semibold text-ink text-sm leading-snug" dir="rtl">
             {titleAr || <span className="text-ink-muted italic font-normal">Arabic title…</span>}
+          </p>
+          <p className="flex items-center gap-1.5 text-xs text-ink-soft pt-1">
+            By <span className="font-semibold text-ink">{selectedAuthor?.name ?? "Tollab Nation"}</span>
           </p>
           <p className="text-xs text-ink-muted">{new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</p>
         </div>

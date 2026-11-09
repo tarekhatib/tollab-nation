@@ -16,15 +16,20 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Lets a verification build use its own folder (NEXT_DIST_DIR=.next-verify) without
+  // clobbering a running `next dev`.
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   serverExternalPackages: ["@prisma/client", "prisma"],
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "**",
-      },
-    ],
+    loader: "custom",
+    loaderFile: "./lib/image-loader.ts",
+    deviceSizes: [480, 640, 768, 1080, 1280, 1600],
+    imageSizes: [64, 128, 256, 384],
   },
+  experimental: {
+    optimizePackageImports: ["recharts", "@tiptap/react", "@tiptap/starter-kit"],
+  },
+  poweredByHeader: false,
   async headers() {
     return [
       {

@@ -7,25 +7,25 @@ export default async function AdsPage() {
   const ads = await getAds();
 
   return (
-    <div className="max-w-5xl">
-      <div className="flex items-center justify-between mb-8">
+    <div>
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b-[3px] border-line-strong pb-5">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Ads</h1>
-          <p className="text-sm text-ink-soft mt-1">{ads.length} ad{ads.length !== 1 ? "s" : ""}</p>
+          <h1 className="display text-5xl uppercase leading-[0.9] text-ink sm:text-6xl">Ads</h1>
+          <p className="mt-3 text-sm text-ink-muted">{ads.length} ad{ads.length !== 1 ? "s" : ""}</p>
         </div>
         <Link
           href="/admin/ads/new"
-          className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-lg hover:bg-accent-hover transition-colors"
+          className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-full hover:bg-accent-hover transition-colors"
         >
           + New ad
         </Link>
       </div>
 
-      <div className="bg-canvas border border-line rounded-xl divide-y divide-line">
+      <div className="bg-canvas border border-line divide-y divide-line">
         {ads.map((ad) => (
           <div key={ad.id} className="flex items-center gap-4 px-5 py-4">
             {/* Thumbnail */}
-            <div className="relative w-24 h-14 rounded-lg overflow-hidden shrink-0 bg-surface border border-line">
+            <div className="relative w-24 h-14 overflow-hidden shrink-0 bg-surface border border-line">
               <Image
                 src={ad.imageUrl}
                 alt=""

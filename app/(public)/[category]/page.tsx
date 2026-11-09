@@ -1,10 +1,18 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ArticleCard from "@/components/ui/ArticleCard";
-import { getCategoryBySlug } from "@/server/queries/categories";
+import SectionHeading from "@/components/ui/SectionHeading";
+import { LeadStory, StoryCard, StoryRow } from "@/components/ui/Story";
+import { getCategoryBySlug, getCategories } from "@/server/queries/categories";
 import { getArticlesByCategory } from "@/server/queries/articles";
 
 export const revalidate = 60;
+
+/** Pre-render every section at build; new ones render on first visit, then cache (ISR). */
+export async function generateStaticParams() {
+  const categories = await getCategories();
+  return categories.map((c) => ({ category: c.slug }));
+}
 
 type Props = {
   params: Promise<{ category: string }>;
@@ -15,16 +23,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const category = await getCategoryBySlug(slug);
   if (!category) return {};
 
-  const defaultImage = "https://beirutscope.com/og-image.png";
+  const defaultImage = "https://tollabnation.com/og-image.png";
 
-  const pageUrl = `https://beirutscope.com/${category.slug}`;
+  const pageUrl = `https://tollabnation.com/${category.slug}`;
 
   return {
     title: category.name,
-    description: `Latest ${category.name} news from Beirut Scope.`,
+    description: `Latest ${category.name} stories from Tollab Nation.`,
     openGraph: {
-      title: `${category.name} | Beirut Scope`,
-      description: `Latest ${category.name} news from Beirut Scope.`,
+      title: `${category.name} | Tollab Nation`,
+      description: `Latest ${category.name} stories from Tollab Nation.`,
       type: "website",
       url: pageUrl,
       images: [
@@ -32,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           url: defaultImage,
           width: 1200,
           height: 630,
-          alt: `${category.name} | Beirut Scope`,
+          alt: `${category.name} | Tollab Nation`,
         },
       ],
     },
@@ -52,33 +60,60 @@ export default async function CategoryPage({ params }: Props) {
 
   if (!category) notFound();
 
+  const [lead, ...rest] = articles;
+  const top = rest.slice(0, 2);
+  const grid = rest.slice(2);
+
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-
-      {/* Category header */}
-      <div className="flex items-center gap-3 mb-8 pb-6 border-b border-line">
-        <div className="w-1 h-10 bg-accent rounded-full" />
-        <div>
-          <h1 className="text-3xl font-bold text-ink">{category.name}</h1>
-          <p className="text-sm text-ink-muted mt-1">
-            {articles.length} article{articles.length !== 1 ? "s" : ""}
-          </p>
-        </div>
-      </div>
-
-      {/* Articles grid */}
-      {articles.length === 0 ? (
-        <p className="text-ink-muted text-center py-20">
-          No articles in this category yet.
+    <main id="main" className="mx-auto max-w-7xl px-4 pb-20 pt-10 sm:px-6 lg:px-8">
+      <header className="mb-10 border-b-[3px] border-line-strong pb-6">
+        <p className="kicker animate-rise text-accent-ink">Section</p>
+        <h1
+          className="animate-rise mt-3 display text-7xl uppercase leading-[0.85] sm:text-9xl"
+          style={{ "--d": 1 } as React.CSSProperties}
+        >
+          {category.name}
+        </h1>
+        <p className="animate-rise mt-4 text-ink-muted" style={{ "--d": 2 } as React.CSSProperties}>
+          The latest {articles.length} {articles.length === 1 ? "story" : "stories"} from Tollab Nation.
         </p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {articles.map((article) => (
-            <ArticleCard key={article.id} article={article} />
-          ))}
-        </div>
-      )}
+      </header>
 
+      {!lead ? (
+        <p className="py-20 text-center text-ink-muted">No stories in this section yet.</p>
+      ) : (
+        <>
+          <section className="grid gap-x-8 gap-y-10 lg:grid-cols-12">
+            <div className="lg:col-span-8">
+              <LeadStory article={lead} />
+            </div>
+            {top.length > 0 && (
+              <div className="grid gap-y-10 sm:grid-cols-2 sm:gap-x-8 lg:col-span-4 lg:grid-cols-1 lg:border-l lg:border-line lg:pl-8">
+                {top.map((a) => (
+                  <StoryCard key={a.id} article={a} size="sm" sizes="(max-width: 1024px) 50vw, 30vw" />
+                ))}
+              </div>
+            )}
+          </section>
+
+          {grid.length > 0 && (
+            <section className="mt-16">
+              <SectionHeading title="More stories" />
+              {/* Phones: compact rows, like a news app feed */}
+              <div className="divide-y divide-line sm:hidden">
+                {grid.map((a) => (
+                  <StoryRow key={a.id} article={a} />
+                ))}
+              </div>
+              <div className="hidden gap-x-8 gap-y-12 sm:grid sm:grid-cols-2 lg:grid-cols-3">
+                {grid.map((a) => (
+                  <ArticleCard key={a.id} article={a} />
+                ))}
+              </div>
+            </section>
+          )}
+        </>
+      )}
     </main>
   );
 }

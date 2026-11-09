@@ -16,16 +16,16 @@ export default async function AdminUpdatesPage() {
 
   return (
     <div className="max-w-3xl space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-ink">Quick Updates</h1>
-        <p className="text-sm text-ink-soft mt-1">
+      <div className="border-b-[3px] border-line-strong pb-5">
+        <h1 className="display text-5xl uppercase leading-[0.9] text-ink sm:text-6xl">Live updates</h1>
+        <p className="mt-3 text-sm text-ink-muted">
           Updates appear in the homepage sidebar and expire after 48 hours. Breaking ones also appear in the ticker.
         </p>
       </div>
 
       <UpdateForm />
 
-      <div className="bg-canvas border border-line rounded-xl overflow-hidden">
+      <div className="bg-canvas border border-line overflow-hidden">
         {updates.length === 0 ? (
           <div className="px-6 py-12 text-center text-sm text-ink-soft">No updates yet.</div>
         ) : (

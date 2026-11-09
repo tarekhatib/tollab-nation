@@ -8,10 +8,13 @@ export const getCategories = cache(async function getCategories(): Promise<Categ
   });
 });
 
-export async function getCategoryBySlug(
-  slug: string
-): Promise<Category | null> {
-  return prisma.category.findUnique({
-    where: { slug },
+export const getCategoryBySlug = cache(async function getCategoryBySlug(slug: string): Promise<Category | null> {
+  return prisma.category.findUnique({ where: { slug } });
+});
+
+/** Navigation order: busiest sections first. */
+export const getNavCategories = cache(async function getNavCategories(): Promise<Category[]> {
+  return prisma.category.findMany({
+    orderBy: [{ articles: { _count: "desc" } }, { name: "asc" }],
   });
-}
+});

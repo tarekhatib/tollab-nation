@@ -25,7 +25,7 @@ export default async function EditAdPage({ params }: Props) {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-ink mb-8">Edit ad</h1>
+      <h1 className="display mb-8 border-b-[3px] border-line-strong pb-5 text-5xl uppercase leading-[0.9] text-ink sm:text-6xl">Edit ad</h1>
       <AdForm articles={articles} ad={ad} />
     </div>
   );

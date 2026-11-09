@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { optimizedSrc, optimizedSrcSet } from "@/lib/image-loader";
 
 type Mark = {
   type: string;
@@ -22,7 +23,7 @@ function applyMarks(children: ReactNode, marks: Mark[]): ReactNode {
       case "code":      return <code>{node}</code>;
       case "link":
         return (
-          <a href={mark.attrs?.href as string} target={(mark.attrs?.target as string) ?? "_self"} rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-400">
+          <a href={mark.attrs?.href as string} target={(mark.attrs?.target as string) ?? "_self"} rel="noopener noreferrer">
             {node}
           </a>
         );
@@ -36,7 +37,9 @@ function renderNode(node: Node, i: number): ReactNode {
 
   switch (node.type) {
     case "doc":       return <>{children()}</>;
-    case "paragraph": return <p key={i} dir="auto">{node.content?.length ? children() : <br />}</p>;
+    case "paragraph":
+      // An empty paragraph is an editor spacer: keep a little air, not a full blank line plus margins.
+      return node.content?.length ? <p key={i} dir="auto">{children()}</p> : <div key={i} aria-hidden="true" className="h-1" />;
     case "hardBreak": return <br key={i} />;
     case "horizontalRule": return <hr key={i} />;
 
@@ -61,7 +64,16 @@ function renderNode(node: Node, i: number): ReactNode {
     case "image":
       return (
         // eslint-disable-next-line @next/next/no-img-element
-        <img key={i} src={node.attrs?.src as string} alt={(node.attrs?.alt as string) ?? ""} loading="lazy" className="rounded-lg max-w-full mx-auto my-4" />
+        <img
+          key={i}
+          src={optimizedSrc(node.attrs?.src as string, 1080)}
+          srcSet={optimizedSrcSet(node.attrs?.src as string)}
+          sizes="(max-width: 768px) 100vw, 720px"
+          alt={(node.attrs?.alt as string) ?? ""}
+          loading="lazy"
+          decoding="async"
+          className="max-w-full mx-auto my-6"
+        />
       );
 
     case "iframe": {
@@ -69,11 +81,11 @@ function renderNode(node: Node, i: number): ReactNode {
       const isTwitter = src?.includes("platform.twitter.com");
       return isTwitter ? (
         <div key={i} className="my-4 flex justify-center">
-          <iframe src={src} className="w-full max-w-lg rounded-lg border-0" style={{ height: "500px" }} />
+          <iframe src={src} loading="lazy" className="w-full max-w-lg border-0" style={{ height: "500px" }} />
         </div>
       ) : (
         <div key={i} className="relative w-full aspect-video my-4">
-          <iframe src={src} className="w-full h-full rounded-lg border-0" allowFullScreen />
+          <iframe src={src} loading="lazy" className="w-full h-full border-0" allowFullScreen />
         </div>
       );
     }
@@ -86,7 +98,7 @@ type Props = { content: Node };
 
 export default function ArticleContent({ content }: Props) {
   return (
-    <div className="article-prose prose prose-neutral max-w-none prose-headings:text-ink prose-headings:font-bold prose-p:text-ink prose-p:leading-relaxed prose-a:text-accent prose-a:no-underline hover:prose-a:underline prose-strong:text-ink prose-blockquote:border-l-accent prose-blockquote:text-ink-soft prose-hr:border-line prose-img:rounded-lg prose-img:mx-auto prose-code:text-ink prose-code:bg-line prose-code:px-1 prose-code:rounded">
+    <div className="article-prose prose max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-p:my-5 prose-code:bg-surface prose-code:px-1 prose-code:rounded">
       {renderNode(content, 0)}
     </div>
   );

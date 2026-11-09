@@ -11,7 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     prisma.category.findMany({ select: { slug: true } }),
   ]);
 
-  const base = "https://beirutscope.com";
+  const base = "https://tollabnation.com";
 
   return [
     { url: base, lastModified: new Date(), changeFrequency: "hourly", priority: 1 },

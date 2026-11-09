@@ -39,7 +39,7 @@ export async function submitContactForm(
         <!-- Header -->
         <tr>
           <td style="background:#C8102E;border-radius:10px 10px 0 0;padding:24px 32px">
-            <p style="margin:0;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.7)">Beirut Scope</p>
+            <p style="margin:0;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.7)">Tollab Nation</p>
             <h1 style="margin:6px 0 0;font-size:20px;font-weight:700;color:#ffffff">New Contact Message</h1>
           </td>
         </tr>
@@ -73,7 +73,7 @@ export async function submitContactForm(
             <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px">
               <tr>
                 <td>
-                  <a href="mailto:${email}?subject=Re: Your message to Beirut Scope"
+                  <a href="mailto:${email}?subject=Re: Your message to Tollab Nation"
                      style="display:inline-block;background:#C8102E;color:#ffffff;font-size:14px;font-weight:600;text-decoration:none;padding:12px 24px;border-radius:8px">
                     Reply to ${name}
                   </a>
@@ -89,7 +89,7 @@ export async function submitContactForm(
           <td style="background:#f4f4f5;border-radius:0 0 10px 10px;padding:20px 32px;text-align:center">
             <p style="margin:0;font-size:12px;color:#888">
               Sent via the contact form at
-              <a href="https://beirutscope.com/contact" style="color:#C8102E;text-decoration:none">beirutscope.com</a>
+              <a href="https://tollabnation.com/contact" style="color:#ED1C24;text-decoration:none">tollabnation.com</a>
             </p>
           </td>
         </tr>
@@ -101,8 +101,8 @@ export async function submitContactForm(
 </html>`;
 
   const { error } = await resend.emails.send({
-    from: "Beirut Scope Contact <onboarding@resend.dev>",
-    to: "beirutscope@gmail.com",
+    from: "Tollab Nation Contact <onboarding@resend.dev>",
+    to: "tollabcontact@gmail.com",
     replyTo: email,
     subject: `New message from ${name}`,
     html,

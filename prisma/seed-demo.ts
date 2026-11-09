@@ -106,7 +106,7 @@ const articles = [
     coverSeed: 60,
     isFeatured: false,
     paragraphs: [
-      "Beirut Scope has obtained documents and spoken with three sources close to the negotiations revealing the behind-the-scenes deliberations that shaped Lebanon's proposed banking restructuring plan.",
+      "Tollab Nation has obtained documents and spoken with three sources close to the negotiations revealing the behind-the-scenes deliberations that shaped Lebanon's proposed banking restructuring plan.",
       "According to the sources, who requested anonymity due to the sensitivity of the talks, a key sticking point was the allocation of losses between large depositors and bank shareholders.",
       "A final agreement is expected before the end of the month, though several major banks have privately signaled continued opposition to the proposed haircuts.",
     ],

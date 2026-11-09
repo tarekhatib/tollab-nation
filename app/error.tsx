@@ -1,18 +1,23 @@
 "use client";
 
 import { useEffect } from "react";
+import { Mark } from "@/components/brand/Logo";
 
 export default function Error({ error, reset }: { error: Error; reset: () => void }) {
-  useEffect(() => { console.error(error); }, [error]);
+  useEffect(() => {
+    console.error(error);
+  }, [error]);
 
   return (
-    <main className="flex-1 flex flex-col items-center justify-center px-4 py-24 text-center">
-      <p className="text-8xl font-black text-accent mb-4">500</p>
-      <h1 className="text-2xl font-bold text-ink mb-2">Something went wrong</h1>
-      <p className="text-ink-muted mb-8">An unexpected error occurred. Please try again.</p>
+    <main className="flex flex-1 flex-col items-center justify-center px-4 py-24 text-center">
+      <Mark className="h-20 w-auto text-ink" />
+      <p className="kicker mt-10 text-accent-ink">Something went wrong</p>
+      <h1 className="mt-3 display text-5xl uppercase sm:text-6xl">We couldn&rsquo;t load this page.</h1>
+      <p className="mt-4 max-w-md text-ink-soft">Try again in a moment.</p>
       <button
+        type="button"
         onClick={reset}
-        className="px-5 py-2.5 bg-accent text-white text-sm font-semibold rounded-lg hover:bg-accent/90 transition-colors"
+        className="mt-8 inline-flex h-12 items-center rounded-full bg-ink px-6 font-semibold text-page transition-colors hover:bg-accent hover:text-white"
       >
         Try again
       </button>

@@ -1,48 +1,108 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { Archivo, Big_Shoulders, IBM_Plex_Sans_Arabic, IBM_Plex_Mono } from "next/font/google";
 import "@/lib/env";
 import "./globals.css";
 
+const archivo = Archivo({
+  subsets: ["latin"],
+  axes: ["wdth"],
+  variable: "--font-archivo",
+  display: "swap",
+});
+
+/** The Cap wordmark's typeface (Big Shoulders Display Black) — used for display headings. */
+const bigShoulders = Big_Shoulders({
+  subsets: ["latin"],
+  axes: ["opsz"],
+  variable: "--font-big-shoulders",
+  display: "swap",
+});
+
+const plexArabic = IBM_Plex_Sans_Arabic({
+  subsets: ["arabic"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-arabic",
+  display: "swap",
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-plex-mono",
+  display: "swap",
+  preload: false,
+});
+
+const SITE_DESCRIPTION =
+  "News for the youngsters. Lebanon and the region, in Arabic and English, from Tollab Nation.";
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://beirutscope.com"),
+  metadataBase: new URL("https://tollabnation.com"),
   title: {
-    default: "Beirut Scope",
-    template: "%s | Beirut Scope",
+    default: "Tollab Nation — News for the youngsters",
+    template: "%s | Tollab Nation",
   },
-  description: "Breaking news and in-depth coverage from Lebanon and the world.",
+  description: SITE_DESCRIPTION,
   openGraph: {
-    siteName: "Beirut Scope",
+    siteName: "Tollab Nation",
     type: "website",
     locale: "en_US",
-    url: "https://beirutscope.com",
-    title: "Beirut Scope",
-    description: "Breaking news and in-depth coverage from Lebanon and the world.",
+    url: "https://tollabnation.com",
+    title: "Tollab Nation",
+    description: SITE_DESCRIPTION,
     images: [
       {
-        url: "https://beirutscope.com/og-image.png",
+        url: "https://tollabnation.com/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Beirut Scope",
+        alt: "Tollab Nation",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    images: ["https://beirutscope.com/og-image.png"],
+    images: ["https://tollabnation.com/og-image.png"],
   },
+  applicationName: "Tollab Nation",
+  appleWebApp: {
+    capable: true,
+    title: "Tollab Nation",
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: { telephone: false },
 };
+
+export const viewport: Viewport = {
+  // The masthead is black in both themes, so the browser/status bar is too.
+  themeColor: "#0A0A0A",
+  // Draw under the notch/home indicator; the header and tab bar pad with safe-area insets.
+  viewportFit: "cover",
+  width: "device-width",
+  initialScale: 1,
+};
+
+// Runs before first paint so the page never flashes the wrong theme.
+const themeScript = `(()=>{try{var k="tollab-theme",s=localStorage.getItem(k),t=s==="light"||s==="dark"?s:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme="light"}})()`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="h-full">
-      <body dir="auto" className="min-h-full flex flex-col bg-page text-ink antialiased">
+    <html
+      lang="en"
+      className={`h-full ${archivo.variable} ${bigShoulders.variable} ${plexArabic.variable} ${plexMono.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <link rel="preconnect" href="https://wsrv.nl" crossOrigin="" />
+      </head>
+      <body className="min-h-full flex flex-col bg-page text-ink antialiased">
+        {children}
         <Script
-          async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6562202667955501"
           crossOrigin="anonymous"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        {children}
       </body>
     </html>
   );

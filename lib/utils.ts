@@ -29,3 +29,24 @@ export function formatDate(date: Date | string): string {
     day: "numeric",
   });
 }
+
+/** "Just now", "12 min ago", "3 h ago", "Yesterday", "12 Jun". */
+export function timeAgo(date: Date | string, now = new Date()): string {
+  const d = new Date(date);
+  const mins = Math.round((now.getTime() - d.getTime()) / 60000);
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins} min ago`;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return `${hours} h ago`;
+  if (hours < 48) return "Yesterday";
+  return d.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    ...(d.getFullYear() !== now.getFullYear() && { year: "numeric" }),
+    timeZone: "Asia/Beirut",
+  });
+}
+
+export function formatTime(date: Date | string): string {
+  return new Date(date).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Beirut" });
+}

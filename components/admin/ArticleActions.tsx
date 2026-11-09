@@ -33,7 +33,7 @@ export default function ArticleActions({ id, isFeatured }: Props) {
       <button
         onClick={handleToggleFeatured}
         disabled={isPending}
-        className={`px-2 py-1 rounded text-xs font-medium transition-colors disabled:opacity-50 ${
+        className={`inline-flex h-8 items-center rounded-full px-3 text-xs font-medium transition-colors disabled:opacity-50 ${
           isFeatured
             ? "bg-accent/10 text-accent border border-accent/30 hover:bg-accent/20"
             : "bg-surface text-ink-soft border border-line hover:text-ink"
@@ -44,7 +44,7 @@ export default function ArticleActions({ id, isFeatured }: Props) {
       <button
         onClick={handleDelete}
         disabled={isPending}
-        className="px-2 py-1 rounded text-xs font-medium text-ink-soft border border-line hover:border-red-400 hover:text-red-500 transition-colors disabled:opacity-50"
+        className="inline-flex h-8 items-center rounded-full px-3 text-xs font-medium text-ink-soft border border-line hover:border-red-400 hover:text-red-500 transition-colors disabled:opacity-50"
       >
         Delete
       </button>

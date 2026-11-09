@@ -23,8 +23,10 @@ function setCorsHeaders(res: NextResponse, origin: string | null) {
   return res;
 }
 
-export default auth(function proxy(req: NextRequest & { auth: unknown }) {
-  const isLoggedIn = !!req.auth;
+export default auth(function proxy(req: NextRequest & { auth: { user?: unknown } | null }) {
+  // Require a real user. On an auth config error, req.auth is an error object (truthy),
+  // so `!!req.auth` would let anonymous visitors into /admin.
+  const isLoggedIn = Boolean(req.auth?.user);
   const { pathname } = req.nextUrl;
   const origin = req.headers.get("origin");
 

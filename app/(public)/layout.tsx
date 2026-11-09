@@ -5,8 +5,10 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   return (
     <>
       <Header />
-      <div className="flex-1">{children}</div>
+      {children}
       <Footer />
+      {/* Room for the bottom tab bar on phones */}
+      <div aria-hidden="true" className="h-[calc(4rem+env(safe-area-inset-bottom))] bg-footer md:hidden" />
     </>
   );
 }

@@ -1,67 +1,89 @@
 import type { Metadata } from "next";
 import { getQuickUpdates } from "@/server/queries/updates";
+import { formatTime, timeAgo } from "@/lib/utils";
+import ChannelCta from "@/components/ui/ChannelCta";
+import type { QuickUpdate } from "@/types";
 
 export const revalidate = 30;
 
 export const metadata: Metadata = {
   title: "Live Updates",
-  description: "Latest breaking news and quick updates from Beirut Scope.",
+  description: "Breaking news and quick updates from Tollab Nation, in Arabic and English.",
 };
 
-function formatUpdateTime(date: Date): string {
+function dayLabel(date: Date) {
+  const tz = "Asia/Beirut";
+  const key = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: tz });
   const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const yesterday = new Date(today.getTime() - 86400000);
-  const d = new Date(date);
-  const dDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const time = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
-
-  if (dDate.getTime() === today.getTime()) return `Today, ${time}`;
-  if (dDate.getTime() === yesterday.getTime()) return `Yesterday, ${time}`;
-  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) + `, ${time}`;
+  if (key(date) === key(now)) return "Today";
+  if (key(date) === key(new Date(now.getTime() - 86400000))) return "Yesterday";
+  return date.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: tz });
 }
 
 export default async function UpdatesPage() {
   const updates = await getQuickUpdates(100);
 
+  // Group by day for a readable timeline.
+  const days: { label: string; items: QuickUpdate[] }[] = [];
+  for (const u of updates) {
+    const label = dayLabel(new Date(u.createdAt));
+    const last = days[days.length - 1];
+    if (last?.label === label) last.items.push(u);
+    else days.push({ label, items: [u] });
+  }
+
   return (
-    <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-1 h-8 bg-accent rounded-full" />
+    <main id="main" className="mx-auto max-w-7xl px-4 pb-20 pt-10 sm:px-6 lg:px-8">
+      <header className="mb-12 grid gap-6 border-b-[3px] border-line-strong pb-8 lg:grid-cols-[1fr_auto] lg:items-end">
         <div>
-          <h1 className="text-3xl font-bold text-ink">Live Updates</h1>
-          <p className="text-sm text-ink-muted mt-1">Breaking news and quick updates</p>
+          <p className="kicker animate-rise flex items-center gap-2 text-accent-ink">
+            <span className="live-dot relative size-2 rounded-full bg-red" aria-hidden="true" />
+            Live · updated every 30 seconds
+          </p>
+          <h1 className="animate-rise mt-4 display text-7xl uppercase leading-[0.85] sm:text-9xl" style={{ "--d": 1 } as React.CSSProperties}>
+            Live desk
+          </h1>
         </div>
-      </div>
+        <p lang="ar" dir="rtl" className="animate-rise text-3xl font-bold text-ink-muted sm:text-4xl" style={{ "--d": 2 } as React.CSSProperties}>
+          آخر التطورات
+        </p>
+      </header>
 
       {updates.length === 0 ? (
-        <p className="text-ink-muted text-center py-20">No active updates.</p>
+        <p className="py-20 text-center text-ink-muted">No updates in the last 48 hours.</p>
       ) : (
-        <ol className="relative border-l-2 border-line space-y-0">
-          {updates.map((update) => (
-            <li key={update.id} className="ml-6 pb-8">
-              <span
-                className="absolute -left-2.25 mt-1.5 w-4 h-4 rounded-full border-2 border-page"
-                style={{ backgroundColor: update.isBreaking ? "var(--accent)" : "var(--border)" }}
-              />
-              <div className="bg-card border border-line rounded-lg p-4 hover:shadow-sm transition-shadow">
-                <div className="flex items-center gap-2 mb-3 flex-wrap">
-                  {update.isBreaking && (
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-white bg-accent px-2 py-0.5 rounded">
-                      Breaking
-                    </span>
-                  )}
-                  <time className="text-xs text-ink-muted">
-                    {formatUpdateTime(new Date(update.createdAt))}
-                  </time>
-                </div>
-                <p className="text-ink leading-relaxed text-right" dir="rtl">{update.textAr}</p>
-                <p className="text-ink-soft leading-relaxed mt-2 border-t border-line pt-2">{update.textEn}</p>
-              </div>
-            </li>
+        <div className="mx-auto max-w-3xl space-y-14">
+          {days.map((day) => (
+            <section key={day.label}>
+              <h2 className="kicker sticky top-28 z-10 -mx-2 mb-2 inline-block bg-page px-2 py-2 text-ink-muted">{day.label}</h2>
+              <ol className="relative border-l border-line">
+                {day.items.map((u) => (
+                  <li key={u.id} className="relative pb-10 pl-8 last:pb-0" data-reveal>
+                    <span
+                      aria-hidden="true"
+                      className={`absolute -left-[5px] top-1.5 size-2.5 rounded-full ring-4 ring-page ${u.isBreaking ? "live-dot bg-red" : "bg-ink-muted"}`}
+                    />
+                    <p className="kicker flex flex-wrap items-center gap-2 text-ink-muted">
+                      <time dateTime={new Date(u.createdAt).toISOString()} className="text-ink">{formatTime(u.createdAt)}</time>
+                      <span aria-hidden="true">·</span>
+                      <span>{timeAgo(u.createdAt)}</span>
+                      {u.isBreaking && <span className="bg-accent px-1.5 py-1 text-white">Breaking · عاجل</span>}
+                    </p>
+                    <p lang="ar" dir="rtl" className="mt-3 text-xl font-semibold leading-relaxed sm:text-[1.375rem]">
+                      {u.textAr}
+                    </p>
+                    <p className="mt-2 leading-relaxed text-ink-soft">{u.textEn}</p>
+                  </li>
+                ))}
+              </ol>
+            </section>
           ))}
-        </ol>
+        </div>
       )}
+
+      <div className="mt-20">
+        <ChannelCta />
+      </div>
     </main>
   );
 }

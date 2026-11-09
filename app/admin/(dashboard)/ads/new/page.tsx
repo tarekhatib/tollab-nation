@@ -12,7 +12,7 @@ export default async function NewAdPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-ink mb-8">New ad</h1>
+      <h1 className="display mb-8 border-b-[3px] border-line-strong pb-5 text-5xl uppercase leading-[0.9] text-ink sm:text-6xl">New ad</h1>
       <AdForm articles={articles} />
     </div>
   );

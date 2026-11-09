@@ -1,9 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { del } from "@vercel/blob";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
+import { isManagedImage, uploadImage } from "@/lib/cloudinary";
 
 type ArticlePayload = {
   title: string;
@@ -15,30 +15,21 @@ type ArticlePayload = {
   isFeatured?: boolean;
   isDraft?: boolean;
   publishedAt?: Date;
+  /** null clears the byline (shows "Tollab Nation"). */
+  authorId?: number | null;
 };
 
-function isBlob(url: string | null | undefined): url is string {
-  return !!url && url.includes(".blob.vercel-storage.com");
-}
-
-function extractBlobUrls(content: unknown): string[] {
-  const urls: string[] = [];
-  function walk(node: unknown) {
-    if (!node || typeof node !== "object") return;
-    const n = node as Record<string, unknown>;
-    if (n.type === "image" && typeof n.attrs === "object" && n.attrs !== null) {
-      const src = (n.attrs as Record<string, unknown>).src;
-      if (isBlob(src as string)) urls.push(src as string);
-    }
-    if (Array.isArray(n.content)) n.content.forEach(walk);
+async function fetchAndStoreRemote(url: string, folder: "covers" | "content") {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const ab = await res.arrayBuffer();
+    const pathname = new URL(url).pathname;
+    const name = pathname.split("/").pop() || `image-${Date.now()}.jpg`;
+    return await uploadImage(ab, folder, name);
+  } catch {
+    return null;
   }
-  walk(content);
-  return urls;
-}
-
-async function deleteBlobUrls(urls: string[]) {
-  const targets = urls.filter(isBlob);
-  if (targets.length > 0) await del(targets);
 }
 
 export async function createArticle(payload: ArticlePayload) {
@@ -49,6 +40,13 @@ export async function createArticle(payload: ArticlePayload) {
     throw new Error(`Slug "${slug}" is already in use. Choose a different one.`);
   }
 
+  // Store remote cover images in managed cloud storage when configured.
+  let coverToStore = payload.coverImage ?? null;
+  if (typeof payload.coverImage === "string" && payload.coverImage.startsWith("http") && !isManagedImage(payload.coverImage)) {
+    const stored = await fetchAndStoreRemote(payload.coverImage, "covers");
+    if (stored) coverToStore = stored;
+  }
+
   const article = await prisma.article.create({
     data: {
       title: payload.title,
@@ -56,17 +54,20 @@ export async function createArticle(payload: ArticlePayload) {
       slug,
       content: payload.content,
       categoryId: payload.categoryId,
-      coverImage: payload.coverImage ?? null,
+      coverImage: coverToStore ?? null,
       isFeatured: payload.isFeatured ?? false,
       isDraft: payload.isDraft ?? false,
       publishedAt: payload.publishedAt ?? new Date(),
+      authorId: payload.authorId ?? null,
     },
-    include: { category: true },
+    include: { category: true, author: true },
   });
 
   revalidatePath("/");
   revalidatePath(`/${article.category.slug}/${article.slug}`);
   revalidatePath("/admin");
+  revalidatePath("/admin/authors");
+  if (article.author) revalidatePath(`/author/${article.author.slug}`);
 
   return article;
 }
@@ -87,19 +88,17 @@ export async function updateArticle(
   if (payload.isFeatured !== undefined) data.isFeatured = payload.isFeatured;
   if (payload.isDraft !== undefined) data.isDraft = payload.isDraft;
   if (payload.publishedAt !== undefined) data.publishedAt = payload.publishedAt;
+  if (payload.authorId !== undefined) data.authorId = payload.authorId;
 
   if (payload.coverImage !== undefined) {
-    data.coverImage = payload.coverImage || null;
-    if (isBlob(current.coverImage) && current.coverImage !== payload.coverImage) {
-      await deleteBlobUrls([current.coverImage]);
+    // Store remote cover images in managed cloud storage when configured.
+    let coverToStore = payload.coverImage || null;
+    if (typeof payload.coverImage === "string" && payload.coverImage.startsWith("http") && !isManagedImage(payload.coverImage)) {
+      const stored = await fetchAndStoreRemote(payload.coverImage, "covers");
+      if (stored) coverToStore = stored;
     }
-  }
 
-  if (payload.content !== undefined) {
-    const oldUrls = extractBlobUrls(current.content);
-    const newUrls = new Set(extractBlobUrls(payload.content));
-    const removed = oldUrls.filter((u) => !newUrls.has(u));
-    await deleteBlobUrls(removed);
+    data.coverImage = coverToStore;
   }
 
   if (payload.slug !== undefined) {
@@ -114,25 +113,19 @@ export async function updateArticle(
   const article = await prisma.article.update({
     where: { id },
     data,
-    include: { category: true },
+    include: { category: true, author: true },
   });
 
   revalidatePath("/");
   revalidatePath(`/${article.category.slug}/${article.slug}`);
   revalidatePath("/admin");
+  revalidatePath("/admin/authors");
+  if (article.author) revalidatePath(`/author/${article.author.slug}`);
 
   return article;
 }
 
 export async function deleteArticle(id: number) {
-  const article = await prisma.article.findUnique({ where: { id } });
-  if (article) {
-    const toDelete: string[] = [];
-    if (isBlob(article.coverImage)) toDelete.push(article.coverImage);
-    toDelete.push(...extractBlobUrls(article.content));
-    await deleteBlobUrls(toDelete);
-  }
-
   await prisma.article.delete({ where: { id } });
   revalidatePath("/");
   revalidatePath("/admin");

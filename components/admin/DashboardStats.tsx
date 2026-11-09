@@ -88,14 +88,14 @@ export default function DashboardStats({
     <>
       {/* Period tabs + stat cards */}
       <div className="mb-10">
-        <div className="flex items-center gap-1 mb-4 bg-surface border border-line rounded-xl p-1 w-fit max-w-full overflow-x-auto">
+        <div className="flex items-center gap-1 mb-4 bg-surface border border-line rounded-full p-1 w-fit max-w-full overflow-x-auto">
           {(["weekly", "monthly", "alltime"] as Period[]).map((p) => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                 period === p
-                  ? "bg-canvas shadow-sm text-ink border border-line"
+                  ? "bg-ink text-page"
                   : "text-ink-soft hover:text-ink"
               }`}
             >
@@ -106,12 +106,12 @@ export default function DashboardStats({
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {statCards.map((stat) => (
-            <div key={stat.label} className="bg-canvas border border-line rounded-xl p-5">
-              <p className="text-xs font-medium text-ink-soft uppercase tracking-wide mb-1">
+            <div key={stat.label} className="border-t-[3px] border-line-strong bg-canvas p-5">
+              <p className="kicker mb-3 text-ink-muted">
                 {stat.label}
               </p>
-              <p className="text-3xl font-bold text-ink">{stat.value}</p>
-              <Link href={stat.href} className="text-xs text-accent hover:underline mt-2 inline-block">
+              <p className="display text-5xl leading-none text-ink tabular-nums">{stat.value}</p>
+              <Link href={stat.href} className="mt-3 inline-block text-xs font-semibold text-accent-ink hover:underline">
                 View all →
               </Link>
             </div>
@@ -120,22 +120,22 @@ export default function DashboardStats({
       </div>
 
       {/* Chart */}
-      <div className="bg-canvas border border-line rounded-xl mb-10">
+      <div className="bg-canvas border border-line mb-10">
         <div className="flex items-start justify-between px-4 sm:px-6 py-4 border-b border-line flex-wrap gap-3">
           <div className="flex items-center gap-2">
-            <h2 className="text-sm font-semibold text-ink capitalize">{metric}</h2>
+            <h2 className="kicker text-ink">{metric}</h2>
             <span className="text-sm text-ink-soft">{subtitle}</span>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             {/* Metric tabs */}
-            <div className="flex items-center gap-1 bg-surface border border-line rounded-lg p-0.5">
+            <div className="flex items-center gap-1 bg-surface border border-line rounded-full p-0.5">
               {(["articles", "clicks", "views"] as Metric[]).map((m) => (
                 <button
                   key={m}
                   onClick={() => setMetric(m)}
-                  className={`px-3 py-1 rounded-md text-xs font-medium transition-colors capitalize ${
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors capitalize ${
                     metric === m
-                      ? "bg-canvas shadow-sm text-ink border border-line"
+                      ? "bg-ink text-page"
                       : "text-ink-soft hover:text-ink"
                   }`}
                 >
@@ -144,14 +144,14 @@ export default function DashboardStats({
               ))}
             </div>
             {/* Timeframe tabs */}
-            <div className="flex items-center gap-1 bg-surface border border-line rounded-lg p-0.5">
+            <div className="flex items-center gap-1 bg-surface border border-line rounded-full p-0.5">
               {(["30d", "1y"] as Timeframe[]).map((t) => (
                 <button
                   key={t}
                   onClick={() => setTimeframe(t)}
-                  className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                     timeframe === t
-                      ? "bg-canvas shadow-sm text-ink border border-line"
+                      ? "bg-ink text-page"
                       : "text-ink-soft hover:text-ink"
                   }`}
                 >
@@ -172,9 +172,9 @@ export default function DashboardStats({
       </div>
 
       {/* Recent articles */}
-      <div className="bg-canvas border border-line rounded-xl">
+      <div className="bg-canvas border border-line">
         <div className="flex items-center justify-between px-6 py-4 border-b border-line">
-          <h2 className="text-sm font-semibold text-ink">Recent Articles</h2>
+          <h2 className="kicker text-ink">Recent Articles</h2>
           <Link href="/admin/articles/new" className="text-xs font-medium text-accent hover:underline">
             + New article
           </Link>

@@ -128,10 +128,10 @@ export default async function AdminDashboard() {
   const { alltime, weekly, monthly, chartData30, chartData1y, recentArticles } = await getDashboardData();
 
   return (
-    <div className="max-w-5xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-ink">Dashboard</h1>
-        <p className="text-sm text-ink-soft mt-1">Welcome back, Admin</p>
+    <div>
+      <div className="mb-8 border-b-[3px] border-line-strong pb-5">
+        <h1 className="display text-5xl uppercase leading-[0.9] text-ink sm:text-6xl">Dashboard</h1>
+        <p className="mt-3 text-sm text-ink-muted">Welcome back, Admin</p>
       </div>
 
       <DashboardStats

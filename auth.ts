@@ -22,6 +22,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
     signIn: "/admin/login",
   },
+  // Needed off Vercel (Render, Railway, `next start`): without it Auth.js rejects the host.
+  // Set AUTH_URL to the public site URL in production.
+  trustHost: true,
   session: {
     strategy: "jwt",
   },

@@ -3,30 +3,32 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "Read how Beirut Scope collects, uses, and protects your information when you visit our website.",
+    "Read how Tollab Nation collects, uses, and protects your information when you visit our website.",
 };
 
 const LAST_UPDATED = "April 2025";
 
 export default function PrivacyPolicyPage() {
   return (
-    <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="flex items-center gap-3 mb-2">
-        <div className="w-1 h-8 bg-accent rounded-full" />
-        <h1 className="text-3xl font-bold text-ink">Privacy Policy</h1>
-      </div>
-      <p className="text-sm text-ink-muted mb-10 ml-5">Last updated: {LAST_UPDATED}</p>
+    <main id="main" className="mx-auto max-w-3xl px-4 pb-20 pt-10 sm:px-6 lg:px-8">
+      <header className="mb-12 border-b-[3px] border-line-strong pb-8">
+        <p className="kicker animate-rise text-accent-ink">Legal</p>
+        <h1 className="animate-rise mt-4 display text-6xl uppercase sm:text-8xl" style={{ "--d": 1 } as React.CSSProperties}>
+          Privacy Policy
+        </h1>
+        <p className="kicker mt-4 text-ink-muted">Last updated: {LAST_UPDATED}</p>
+      </header>
 
-      <div className="space-y-8 text-ink-soft leading-relaxed">
+      <div className="space-y-10 text-[1.0625rem] text-ink-soft leading-relaxed">
         <section>
           <p>
-            Welcome to <strong className="text-ink">Beirut Scope</strong> (
-            <span className="text-ink">https://beirutscope.com</span>). We are committed to
+            Welcome to <strong className="text-ink">Tollab Nation</strong> (
+            <span className="text-ink">https://tollabnation.com</span>). We are committed to
             protecting your privacy and ensuring transparency about how we collect and use
             information.
           </p>
           <p className="mt-3">
-            This Privacy Policy explains how Beirut Scope collects, uses, and safeguards your
+            This Privacy Policy explains how Tollab Nation collects, uses, and safeguards your
             information when you visit our website.
           </p>
         </section>
@@ -36,8 +38,8 @@ export default function PrivacyPolicyPage() {
           <SubSection title="a) Information you provide">
             <p>
               You may contact us via email at{" "}
-              <a href="mailto:beirutscope@gmail.com" className="text-accent hover:underline">
-                beirutscope@gmail.com
+              <a href="mailto:tollabcontact@gmail.com" className="text-accent-ink underline underline-offset-2 hover:text-ink">
+                tollabcontact@gmail.com
               </a>
               , in which case we may receive your name, email address, and any information you
               choose to share.
@@ -45,7 +47,7 @@ export default function PrivacyPolicyPage() {
           </SubSection>
           <SubSection title="b) Information collected automatically">
             <p className="mb-3">
-              When you visit Beirut Scope, we automatically collect certain information, including:
+              When you visit Tollab Nation, we automatically collect certain information, including:
             </p>
             <BulletList
               items={[
@@ -76,7 +78,7 @@ export default function PrivacyPolicyPage() {
         </Section>
 
         <Section title="3. Cookies and Tracking Technologies">
-          <p className="mb-3">Beirut Scope uses cookies to enhance your browsing experience.</p>
+          <p className="mb-3">Tollab Nation uses cookies to enhance your browsing experience.</p>
           <p className="mb-3">
             Cookies are small data files stored on your device that help us:
           </p>
@@ -111,7 +113,7 @@ export default function PrivacyPolicyPage() {
               href="https://adssettings.google.com/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-accent hover:underline break-all"
+              className="text-accent-ink underline underline-offset-2 hover:text-ink break-all"
             >
               https://adssettings.google.com/
             </a>
@@ -145,8 +147,8 @@ export default function PrivacyPolicyPage() {
           />
           <p className="mt-3">
             To exercise any of these rights, you can contact us at{" "}
-            <a href="mailto:beirutscope@gmail.com" className="text-accent hover:underline">
-              beirutscope@gmail.com
+            <a href="mailto:tollabcontact@gmail.com" className="text-accent-ink underline underline-offset-2 hover:text-ink">
+              tollabcontact@gmail.com
             </a>
             .
           </p>
@@ -154,7 +156,7 @@ export default function PrivacyPolicyPage() {
 
         <Section title="8. Children's Information">
           <p>
-            Beirut Scope does not knowingly collect personal information from children under the
+            Tollab Nation does not knowingly collect personal information from children under the
             age of 13.
           </p>
         </Section>
@@ -176,8 +178,8 @@ export default function PrivacyPolicyPage() {
           <p className="mb-3">
             If you have any questions about this Privacy Policy, please contact us:
           </p>
-          <a href="mailto:beirutscope@gmail.com" className="text-accent hover:underline">
-            beirutscope@gmail.com
+          <a href="mailto:tollabcontact@gmail.com" className="text-accent-ink underline underline-offset-2 hover:text-ink">
+            tollabcontact@gmail.com
           </a>
         </Section>
       </div>
@@ -188,7 +190,7 @@ export default function PrivacyPolicyPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section>
-      <h2 className="text-lg font-semibold text-ink mb-3 pb-2 border-b border-line">{title}</h2>
+      <h2 className="display text-2xl uppercase text-ink mb-4 pt-4 border-t border-line">{title}</h2>
       <div className="space-y-3">{children}</div>
     </section>
   );

@@ -20,7 +20,7 @@ export default function UpdateActions({ id }: { id: number }) {
     <button
       onClick={handleDelete}
       disabled={isPending}
-      className="shrink-0 px-2 py-1 rounded text-xs font-medium text-ink-soft border border-line hover:border-red-400 hover:text-red-500 transition-colors disabled:opacity-50"
+      className="shrink-0 inline-flex h-8 items-center rounded-full px-3 text-xs font-medium text-ink-soft border border-line hover:border-red-400 hover:text-red-500 transition-colors disabled:opacity-50"
     >
       Delete
     </button>

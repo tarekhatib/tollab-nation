@@ -30,11 +30,27 @@ model Article {
   clicks      Int           @default(0)
   isDraft     Boolean       @default(false)
   titleAr     String        @default("")
+  authorId    Int?
   ads         AdOnArticle[]
   category    Category      @relation(fields: [categoryId], references: [id])
+  author      Author?       @relation(fields: [authorId], references: [id], onDelete: SetNull)
 
   @@index([categoryId])
+  @@index([authorId])
   @@index([publishedAt])
+}
+
+/// A writer credited on articles. With no avatarUrl the site shows the default avatar.
+model Author {
+  id         Int       @id @default(autoincrement())
+  name       String
+  slug       String    @unique
+  avatarUrl  String?
+  bio        String    @default("")
+  isVerified Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  articles   Article[]
 }
 
 model Ad {
