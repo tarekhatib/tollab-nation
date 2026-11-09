@@ -28,3 +28,6 @@ next-env.d.ts
 
 # Local backups (images, DB dumps)
 /backups/
+
+# Env files for other projects (live credentials)
+*.env
