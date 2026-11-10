@@ -4,7 +4,7 @@ import { ArrowIcon } from "@/components/ui/Icons";
 /** Commercial entry point for brands, universities and organisations. */
 export default function PartnerBand() {
   return (
-    <section className="grid gap-8 border-y border-line py-10 lg:grid-cols-[1fr_auto] lg:items-center" data-reveal>
+    <section className="mt-16 grid gap-8 border-y border-line py-10 sm:mt-20 lg:grid-cols-[1fr_auto] lg:items-center" data-reveal>
       <div>
         <p className="kicker text-accent-ink">For brands, universities &amp; organisations</p>
         <h2 className="mt-3 max-w-2xl display text-4xl uppercase leading-[0.95] sm:text-5xl">

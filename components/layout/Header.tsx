@@ -74,7 +74,7 @@ export default async function Header() {
                 rel="noopener noreferrer"
                 className="group ml-2 hidden h-10 items-center gap-2 rounded-full bg-ink pl-3.5 pr-4 text-sm font-semibold text-page transition-colors hover:bg-[#25D366] hover:text-white sm:inline-flex"
               >
-                <WhatsAppIcon size={16} className="transition-transform duration-300 group-hover:-rotate-12" />
+                <WhatsAppIcon size={16} />
                 Follow the channel
               </a>
               <a
