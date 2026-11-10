@@ -1,7 +1,7 @@
 import { SITE } from "@/lib/site";
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import { Archivo, Big_Shoulders, IBM_Plex_Sans_Arabic, IBM_Plex_Mono } from "next/font/google";
+import ClientScripts from "@/components/layout/ClientScripts";
 import "@/lib/env";
 import "./globals.css";
 
@@ -83,9 +83,6 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-// Runs before first paint so the page never flashes the wrong theme.
-const themeScript = `(()=>{try{var k="tollab-theme",s=localStorage.getItem(k),t=s==="light"||s==="dark"?s:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme="light"}})()`;
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
@@ -94,18 +91,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
     >
       <head>
-        <Script id="theme-script" strategy="beforeInteractive">
-          {themeScript}
-        </Script>
         <link rel="preconnect" href="https://wsrv.nl" crossOrigin="" />
       </head>
       <body className="min-h-full flex flex-col bg-page text-ink antialiased">
         {children}
-        <Script
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6562202667955501"
-          crossOrigin="anonymous"
-          strategy="lazyOnload"
-        />
+        <ClientScripts />
       </body>
     </html>
   );
