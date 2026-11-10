@@ -21,7 +21,7 @@ export async function getAdById(id: number) {
 }
 
 /**
- * Returns at most one active ad per position (1, 2, 3) for the given article.
+ * Returns at most one active ad per position (1, 2, 3, 4) for the given article.
  * Specific-article assignments take priority over showOnAll.
  */
 export async function getAdsForArticle(articleId: number) {

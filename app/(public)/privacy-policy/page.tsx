@@ -23,7 +23,7 @@ export default function PrivacyPolicyPage() {
         <section>
           <p>
             Welcome to <strong className="text-ink">Tollab Nation</strong> (
-            <span className="text-ink">https://tollabnation.com</span>). We are committed to
+            <span className="text-ink">https://tollabn.com</span>). We are committed to
             protecting your privacy and ensuring transparency about how we collect and use
             information.
           </p>

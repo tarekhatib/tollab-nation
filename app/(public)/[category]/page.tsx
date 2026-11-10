@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import ArticleCard from "@/components/ui/ArticleCard";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { LeadStory, StoryCard, StoryRow } from "@/components/ui/Story";
+import PartnerBand from "@/components/ui/PartnerBand";
 import { getCategoryBySlug, getCategories } from "@/server/queries/categories";
 import { getArticlesByCategory } from "@/server/queries/articles";
 
@@ -115,6 +116,7 @@ export default async function CategoryPage({ params }: Props) {
           )}
         </>
       )}
+      <PartnerBand />
     </main>
   );
 }

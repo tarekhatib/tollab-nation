@@ -86,6 +86,7 @@ export default async function ArticlePage({ params }: Props) {
   const ad1 = adsByPosition.get(1);
   const ad2 = adsByPosition.get(2);
   const ad3 = adsByPosition.get(3);
+  const ad4 = adsByPosition.get(4);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -233,6 +234,8 @@ export default async function ArticlePage({ params }: Props) {
               );
             })()}
           </div>
+          {/* Position 4 — directly after the article */}
+          {ad4 && <ArticleAd imageUrl={ad4.imageUrl} linkUrl={ad4.linkUrl} text={ad4.text} />}
           <ViewTracker slug={article.slug} />
 
           <div className="mt-12 flex flex-col gap-6 border-t-[3px] border-line-strong pt-6 sm:flex-row sm:items-center sm:justify-between">

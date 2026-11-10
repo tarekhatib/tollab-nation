@@ -103,7 +103,7 @@ export async function submitContactForm(
           <td style="background:#f4f4f5;border-radius:0 0 10px 10px;padding:20px 32px;text-align:center">
             <p style="margin:0;font-size:12px;color:#888">
               Sent via the contact form at
-              <a href="https://tollabnation.com/contact" style="color:#ED1C24;text-decoration:none">tollabnation.com</a>
+              <a href="https://tollabn.com/contact" style="color:#ED1C24;text-decoration:none">tollabn.com</a>
             </p>
           </td>
         </tr>

@@ -21,7 +21,7 @@ export default function ScrollWatcher() {
       const delta = y - lastY;
       if (y < 120) {
         delete root.dataset.scroll;
-      } else if (Math.abs(delta) > 6) {
+      } else if (Math.abs(delta) > 3) {
         root.dataset.scroll = delta > 0 ? "down" : "up";
       }
       if (y > 4) root.dataset.scrolled = "";

@@ -12,7 +12,9 @@ export default function ContactForm({ partner = false }: Props) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState(
-    partner ? "Hi Tollab Nation, we'd like to talk about advertising / a partnership.\n\nOrganisation:\nWhat we want to achieve:\nTimeline and budget:\n" : ""
+    partner
+      ? "Hi Tollab Nation, we'd like to talk about advertising or a partnership.\n\nOur business:\nWhat we want to achieve:\nDuration:\nBudget:\nOur WhatsApp number:\n"
+      : ""
   );
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");

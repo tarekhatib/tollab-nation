@@ -72,7 +72,7 @@ export default async function Header() {
                 href={SITE.whatsappChannel}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group ml-2 hidden h-10 items-center gap-2 rounded-full bg-ink pl-3.5 pr-4 text-sm font-semibold text-page transition-colors hover:bg-accent hover:text-white sm:inline-flex"
+                className="group ml-2 hidden h-10 items-center gap-2 rounded-full bg-ink pl-3.5 pr-4 text-sm font-semibold text-page transition-colors hover:bg-[#25D366] hover:text-white sm:inline-flex"
               >
                 <WhatsAppIcon size={16} className="transition-transform duration-300 group-hover:-rotate-12" />
                 Follow the channel
@@ -82,7 +82,7 @@ export default async function Header() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Follow Tollab Nation on WhatsApp"
-                className="press ml-1 grid size-10 place-items-center rounded-full bg-accent text-white sm:hidden"
+                className="press ml-1 grid size-10 place-items-center rounded-full bg-[#25D366] text-white sm:hidden"
               >
                 <WhatsAppIcon size={18} />
               </a>

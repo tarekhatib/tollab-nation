@@ -43,7 +43,7 @@ export default async function ContactPage({ searchParams }: Props) {
               <ul className="space-y-3">
                 {[
                   "Sponsored stories and campaigns",
-                  "Placements on tollabnation.com",
+                  "Placements on tollabn.com",
                   "Posts across our WhatsApp channel and Instagram",
                   "Student events and activations",
                 ].map((item) => (

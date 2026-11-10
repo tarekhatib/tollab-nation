@@ -94,7 +94,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <Script id="theme-script" strategy="beforeInteractive">
+          {themeScript}
+        </Script>
         <link rel="preconnect" href="https://wsrv.nl" crossOrigin="" />
       </head>
       <body className="min-h-full flex flex-col bg-page text-ink antialiased">

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Mark } from "@/components/brand/Logo";
 import ChannelCta from "@/components/ui/ChannelCta";
+import PartnerBand from "@/components/ui/PartnerBand";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { SITE } from "@/lib/site";
 
@@ -118,6 +119,7 @@ export default function AboutPage() {
           </div>
         </section>
 
+        <PartnerBand />
         <ChannelCta />
       </div>
     </main>

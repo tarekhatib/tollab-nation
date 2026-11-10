@@ -39,7 +39,13 @@ export default async function AdsPage() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
                 <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-surface border border-line text-ink-soft">
-                  {ad.position === 1 ? "Pos 1 · Above Title" : ad.position === 2 ? "Pos 2 · Before Content" : "Pos 3 · Mid Content"}
+                  {ad.position === 1
+                    ? "Pos 1 · Above Title"
+                    : ad.position === 2
+                      ? "Pos 2 · Before Content"
+                      : ad.position === 3
+                        ? "Pos 3 · Mid Content"
+                        : "Pos 4 · End of Article"}
                 </span>
               </div>
               <p className="text-sm font-medium text-ink truncate">

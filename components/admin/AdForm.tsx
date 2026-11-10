@@ -41,6 +41,11 @@ const POSITIONS = [
     label: "Position 3 — Mid Content",
     description: "Injected in the middle of the article. Catches readers who are actively engaged.",
   },
+  {
+    value: 4,
+    label: "Position 4 — End of Article",
+    description: "Shown directly after the article text, before the sharing and follow-up actions.",
+  },
 ];
 
 export default function AdForm({ articles, ad }: Props) {
