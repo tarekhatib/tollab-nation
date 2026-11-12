@@ -30,6 +30,48 @@ type Filter = (typeof FILTERS)[number]["key"];
 
 const PAGE = 30;
 const dateFmt = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" });
+const num = new Intl.NumberFormat("en-US");
+const short = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 });
+
+function EyeIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+function ClickIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="m9 9 5 12 1.8-5.2L21 14z" />
+      <path d="M7.2 2.2 8 5.1M5.1 8l-2.9-.8M14 4.1 12 6.2M6.2 12l-2.1 2" />
+    </svg>
+  );
+}
+
+/** Site-wide totals, shown above the list. */
+function Totals({ views, clicks }: { views: number; clicks: number }) {
+  const tiles = [
+    { label: "Total views", value: views, icon: <EyeIcon size={16} /> },
+    { label: "Total clicks", value: clicks, icon: <ClickIcon size={16} /> },
+  ];
+  return (
+    <dl className="mb-4 grid grid-cols-2 border border-line bg-canvas">
+      {tiles.map((t, i) => (
+        <div key={t.label} className={`px-4 py-3.5 sm:px-5 sm:py-4 ${i ? "border-l border-line" : ""}`}>
+          <dt className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-ink-muted">
+            {t.icon}
+            {t.label}
+          </dt>
+          <dd className="display mt-1 text-3xl leading-none text-ink tabular-nums sm:text-4xl" title={num.format(t.value)}>
+            {num.format(t.value)}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
 
 function FeaturedStar({ id, on }: { id: number; on: boolean }) {
   const router = useRouter();
@@ -104,6 +146,11 @@ export default function ArticleList({ articles }: { articles: AdminArticleRow[] 
     [articles]
   );
 
+  const totals = useMemo(
+    () => articles.reduce((t, a) => ({ views: t.views + a.views, clicks: t.clicks + a.clicks }), { views: 0, clicks: 0 }),
+    [articles]
+  );
+
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     return articles.filter((a) => {
@@ -117,6 +164,7 @@ export default function ArticleList({ articles }: { articles: AdminArticleRow[] 
 
   return (
     <div>
+      <Totals {...totals} />
       <div className="mb-4 space-y-3">
         <div className="relative">
           <svg className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-muted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" aria-hidden="true">
@@ -182,9 +230,29 @@ export default function ArticleList({ articles }: { articles: AdminArticleRow[] 
                   )}
                   <p className="mt-1 truncate text-xs text-ink-muted">
                     {a.category} · {a.author ?? "Tollab Nation"} · {dateFmt.format(new Date(a.publishedAt))}
-                    <span className="hidden sm:inline"> · {a.views} views · {a.clicks} clicks</span>
+                  </p>
+                  {/* Phone: one compact stats line under the meta. */}
+                  <p className="mt-1.5 flex items-center gap-3 text-xs font-semibold text-ink tabular-nums sm:hidden">
+                    <span className="inline-flex items-center gap-1" aria-label={`${num.format(a.views)} views`}>
+                      <EyeIcon /> {short.format(a.views)}
+                    </span>
+                    <span className="inline-flex items-center gap-1" aria-label={`${num.format(a.clicks)} clicks`}>
+                      <ClickIcon /> {short.format(a.clicks)}
+                    </span>
                   </p>
                 </Link>
+                {/* Wider screens: stats as their own right-hand columns. */}
+                <div className="hidden shrink-0 items-center sm:flex">
+                  {[
+                    { label: "views", value: a.views },
+                    { label: "clicks", value: a.clicks },
+                  ].map((s) => (
+                    <div key={s.label} className="w-20 text-right" title={`${num.format(s.value)} ${s.label}`}>
+                      <p className="text-base font-bold leading-none text-ink tabular-nums">{short.format(s.value)}</p>
+                      <p className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-ink-muted">{s.label}</p>
+                    </div>
+                  ))}
+                </div>
                 <FeaturedStar id={a.id} on={a.isFeatured} />
               </li>
             ))}

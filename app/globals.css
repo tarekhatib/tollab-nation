@@ -517,17 +517,41 @@ summary,
 button.fc-prev { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Ccircle cx='22' cy='22' r='20' fill='white' fill-opacity='.94'/%3E%3Cpath d='M25 15l-7 7 7 7' fill='none' stroke='%230A0A0A' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 22 22, w-resize; }
 button.fc-next { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Ccircle cx='22' cy='22' r='20' fill='white' fill-opacity='.94'/%3E%3Cpath d='M19 15l7 7-7 7' fill='none' stroke='%230A0A0A' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 22 22, e-resize; }
 
-/* Phone tab bars (GlassDock): clear liquid glass, not frosted, as iOS 26's
-   "clear" look. data-theme is set from what's behind the bar, so the glass and
-   its labels flip dark/light like Apple's; these beat glisse's :where() defaults. */
-.glass-dock { --lg-blur: 0px; }
+/* Phone tab bars (GlassDock): iOS 26's default "regular" liquid glass. Frosted
+   enough that labels stay readable over anything, translucent enough that what
+   scrolls behind still shows through. data-theme is set from what's behind the
+   bar (GlassDock), and the glass and its labels crossfade between dark and light
+   as photos or dark sections pass under it, as iOS does. These beat glisse's
+   :where() defaults. */
+.glass-dock {
+  --lg-blur: 10px;
+  --lg-ease: cubic-bezier(0.32, 0.72, 0, 1);
+}
 .glass-dock[data-theme="light"] {
-  --lg-glass: rgb(255 255 255 / 0.2);
-  --lg-glass-active: rgb(255 255 255 / 0.36);
-  --lg-edge: rgb(0 0 0 / 0.12);
+  --lg-glass: rgb(255 255 255 / 0.55);
+  --lg-glass-active: rgb(255 255 255 / 0.72);
+  --lg-edge: rgb(0 0 0 / 0.1);
+  --lg-drop: rgb(0 0 0 / 0.14);
 }
 .glass-dock[data-theme="dark"] {
-  --lg-glass: rgb(0 0 0 / 0.3);
-  --lg-glass-active: rgb(0 0 0 / 0.45);
-  --lg-edge: rgb(255 255 255 / 0.16);
+  --lg-glass: rgb(30 30 32 / 0.58);
+  --lg-glass-active: rgb(60 60 64 / 0.62);
+  --lg-edge: rgb(255 255 255 / 0.14);
+  --lg-drop: rgb(0 0 0 / 0.3);
+}
+/* The morph: tint, rim and labels ease across together instead of snapping. */
+.glass-dock .lg-tab-bar-glass,
+.glass-dock .lg-button {
+  transition:
+    background-color 450ms var(--lg-ease),
+    box-shadow 450ms var(--lg-ease),
+    color 450ms var(--lg-ease);
+}
+.glass-dock .lg-tab {
+  transition: color 450ms var(--lg-ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .glass-dock .lg-tab-bar-glass,
+  .glass-dock .lg-button,
+  .glass-dock .lg-tab { transition-duration: 0s; }
 }

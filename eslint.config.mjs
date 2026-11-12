@@ -6,8 +6,6 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   globalIgnores([
-    // Third-party source (glisse), kept as upstream wrote it.
-    "vendor/**",
     ".next/**",
     "out/**",
     "build/**",
