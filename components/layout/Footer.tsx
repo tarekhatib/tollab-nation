@@ -71,7 +71,7 @@ export default async function Footer() {
               {[
                 { href: "/updates", label: "Live updates" },
                 { href: "/about", label: "About us" },
-                { href: "/contact?topic=partner", label: "Advertise with us" },
+                { href: "/contact?topic=partner&from=footer", label: "Advertise with us" },
                 { href: "/contact", label: "Contact & tips" },
                 { href: "/privacy-policy", label: "Privacy policy" },
               ].map((l) => (

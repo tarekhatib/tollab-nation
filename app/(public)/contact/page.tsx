@@ -9,10 +9,10 @@ export const metadata: Metadata = {
     "Get in touch with Tollab Nation. Send us a story tip, a correction, or an advertising inquiry.",
 };
 
-type Props = { searchParams: Promise<{ topic?: string }> };
+type Props = { searchParams: Promise<{ topic?: string; from?: string }> };
 
 export default async function ContactPage({ searchParams }: Props) {
-  const { topic } = await searchParams;
+  const { topic, from } = await searchParams;
   const partner = topic === "partner";
 
   const channels = [
@@ -86,7 +86,7 @@ export default async function ContactPage({ searchParams }: Props) {
 
         <div className="lg:col-span-6 lg:col-start-7">
           <h2 className="kicker mb-6 text-ink-muted">Send a message</h2>
-          <ContactForm key={partner ? "partner" : "general"} partner={partner} />
+          <ContactForm key={partner ? "partner" : "general"} partner={partner} source={from} />
         </div>
       </div>
     </main>

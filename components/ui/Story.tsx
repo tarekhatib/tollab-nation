@@ -18,17 +18,20 @@ export function StoryMedia({
   priority = false,
   className = "aspect-[16/10]",
   reveal = true,
+  settle = priority,
 }: {
   article: Story;
   sizes: string;
   priority?: boolean;
   className?: string;
   reveal?: boolean;
+  /** Play the slow zoom-out on load (default: only for priority images). */
+  settle?: boolean;
 }) {
   return (
     <div
       className={`img-zoom relative overflow-hidden bg-surface ${className}`}
-      data-reveal={reveal && !priority ? "img" : undefined}
+      data-reveal={reveal && !priority && !settle ? "img" : undefined}
     >
       {article.coverImage ? (
         <Image
@@ -38,7 +41,7 @@ export function StoryMedia({
           sizes={sizes}
           priority={priority}
           fetchPriority={priority ? "high" : undefined}
-          className={`object-cover ${priority ? "animate-settle" : ""}`}
+          className={`object-cover ${settle ? "animate-settle" : ""}`}
         />
       ) : (
         <div className="absolute inset-0 grid place-items-center text-ink/15">
@@ -64,12 +67,12 @@ export function StoryMeta({ article, className = "" }: { article: Story; classNa
 /* ── Variants ─────────────────────────────────────────────── */
 
 /** The day's lead: big image, big Arabic headline, English deck. */
-export function LeadStory({ article }: { article: Story }) {
+export function LeadStory({ article, priority = true }: { article: Story; priority?: boolean }) {
   const ar = isArabic(article);
   return (
     <article className="group">
       <Link href={hrefOf(article)} className="block">
-        <StoryMedia article={article} priority sizes="(max-width: 1024px) 100vw, 50vw" className="aspect-[16/10]" />
+        <StoryMedia article={article} priority={priority} settle sizes="(max-width: 1024px) 100vw, 50vw" className="aspect-[16/10]" />
         <div className="pt-5" dir={ar ? "rtl" : "ltr"}>
           <StoryMeta article={article} className={`animate-rise ${ar ? "justify-end" : ""}`} />
           <h2

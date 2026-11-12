@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { submitContactForm } from "@/server/actions/contact";
 
-type Props = { partner?: boolean };
+type Props = { partner?: boolean; source?: string };
 
 const field =
   "w-full border-0 border-b-2 border-line bg-transparent px-0 py-3 text-base text-ink outline-none transition-colors placeholder:text-ink-muted/70 focus:border-red";
 
-export default function ContactForm({ partner = false }: Props) {
+export default function ContactForm({ partner = false, source }: Props) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState(
@@ -24,7 +24,7 @@ export default function ContactForm({ partner = false }: Props) {
     setStatus("loading");
     setErrorMsg("");
 
-    const result = await submitContactForm(name, email, message);
+    const result = await submitContactForm(name, email, message, source);
 
     if (result.error) {
       setErrorMsg(result.error);

@@ -11,7 +11,9 @@ const escapeHtml = (s: string) =>
 export async function submitContactForm(
   name: string,
   email: string,
-  message: string
+  message: string,
+  /** Which partner link brought them here (e.g. "article-ad"); comes from the URL, so it is untrusted. */
+  source?: string
 ): Promise<{ success?: boolean; error?: string }> {
   if (!name.trim() || !email.trim() || !message.trim()) {
     return { error: "All fields are required." };
@@ -34,6 +36,7 @@ export async function submitContactForm(
   const resend = new Resend(apiKey);
 
   // Everything the visitor typed is escaped before it goes into the email HTML.
+  const via = source?.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 32) || "";
   const safeName = escapeHtml(name.trim());
   const safeEmail = escapeHtml(email.trim());
   const messageHtml = message
@@ -77,6 +80,8 @@ export async function submitContactForm(
               </tr>
             </table>
 
+            ${via ? `<p style="margin:0 0 20px;font-size:13px;color:#888">Came in via: <strong style="color:#333">${via}</strong></p>` : ""}
+
             <!-- Message -->
             <p style="margin:0 0 10px;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#888">Message</p>
             <div style="background:#f8f8f8;border-left:3px solid #C8102E;border-radius:0 8px 8px 0;padding:16px 20px;font-size:15px;line-height:1.65;color:#333">
@@ -118,9 +123,9 @@ export async function submitContactForm(
     from: CONTACT_FROM,
     to: CONTACT_TO,
     replyTo: email,
-    subject: `New message from ${name}`,
+    subject: `New message from ${name}${via ? ` [via ${via}]` : ""}`,
     html,
-    text: `From: ${name} <${email}>\n\n${message.trim()}`,
+    text: `From: ${name} <${email}>${via ? `\nVia: ${via}` : ""}\n\n${message.trim()}`,
   });
 
   if (error) {

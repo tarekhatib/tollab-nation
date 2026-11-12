@@ -3,7 +3,9 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { updateArticle } from "@/server/actions/articles";
+import { setArticleFeatured } from "@/server/actions/articles";
+import FeaturedLimitDialog from "@/components/admin/FeaturedLimitDialog";
+import type { FeaturedSlot } from "@/lib/featured";
 
 export type AdminArticleRow = {
   id: number;
@@ -34,8 +36,32 @@ function FeaturedStar({ id, on }: { id: number; on: boolean }) {
   const [pending, start] = useTransition();
   // Optimistic: flip instantly, server catches up.
   const [optimistic, setOptimistic] = useState<boolean | null>(null);
+  // Set when the carousel is full: the stories currently holding the slots.
+  const [full, setFull] = useState<FeaturedSlot[] | null>(null);
   const value = optimistic ?? on;
+
+  async function feature(next: boolean) {
+    const res = await setArticleFeatured(id, next);
+    if (!res.ok) {
+      setOptimistic(null);
+      setFull(res.featured);
+      return;
+    }
+    router.refresh();
+  }
+
   return (
+    <>
+    <FeaturedLimitDialog
+      featured={full}
+      onClose={() => setFull(null)}
+      onSwap={async (oldId) => {
+        await setArticleFeatured(oldId, false);
+        setFull(null);
+        setOptimistic(true);
+        await feature(true);
+      }}
+    />
     <button
       type="button"
       disabled={pending}
@@ -45,8 +71,7 @@ function FeaturedStar({ id, on }: { id: number; on: boolean }) {
         setOptimistic(!value);
         start(async () => {
           try {
-            await updateArticle(id, { isFeatured: !value });
-            router.refresh();
+            await feature(!value);
           } catch {
             setOptimistic(null);
           }
@@ -60,6 +85,7 @@ function FeaturedStar({ id, on }: { id: number; on: boolean }) {
         <path d="m12 3 2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.8l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8z" />
       </svg>
     </button>
+    </>
   );
 }
 

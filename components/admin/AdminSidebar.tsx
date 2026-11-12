@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { GlassButton, GlassDock, GlassTabBar, SIDE_BUTTON, tabBarStyle } from "@/components/ui/LiquidGlass";
 import { signOut } from "next-auth/react";
 import { Logo } from "@/components/brand/Logo";
 import ThemeToggle from "@/components/layout/ThemeToggle";
@@ -24,23 +25,10 @@ const navItems: { label: string; short?: string; href: string; icon: React.React
   { label: "Ads", href: "/admin/ads", icon: icons.ads },
 ];
 
-function TabLink({ item, active }: { item: (typeof navItems)[number]; active: boolean }) {
-  return (
-    <Link
-      href={item.href}
-      aria-current={active ? "page" : undefined}
-      className={`press relative flex flex-1 flex-col items-center justify-center gap-1 text-[0.6875rem] font-semibold ${active ? "text-ink" : "text-ink-muted"}`}
-    >
-      <span aria-hidden="true" className={`absolute inset-x-4 top-0 h-0.5 bg-red transition-transform duration-500 ${active ? "scale-x-100" : "scale-x-0"}`} />
-      <svg width="22" height="22" viewBox="0 0 24 24" {...s} aria-hidden="true">{item.icon}</svg>
-      {item.short ?? item.label}
-    </Link>
-  );
-}
-
 /** Admin navigation in the site's masthead style: black in both themes, red active marker. */
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   // Drawer remembers the page it was opened on; navigating closes it.
   const [openOn, setOpenOn] = useState<string | null>(null);
   const open = openOn === pathname;
@@ -80,38 +68,41 @@ export default function AdminSidebar() {
         <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden" onClick={() => setOpenOn(null)} aria-hidden="true" />
       )}
 
-      {/* Phone bottom bar: thumb-reach navigation + one-tap "new article".
-          Hidden on editing screens, where the save bar takes this spot. */}
+      {/* Phone bottom bar, iOS 26 liquid glass: a floating tab bar plus a separate
+          round "new article" button. Hidden on editing screens, where the save bar sits. */}
       {!isFormPage && (
-        <nav
-          aria-label="Admin quick navigation"
-          className="theme-ink fixed inset-x-0 bottom-0 z-40 border-t border-line bg-header pb-[env(safe-area-inset-bottom)] lg:hidden"
-        >
-          <div className="mx-auto flex h-16 max-w-lg items-stretch px-2">
-            {[navItems[0], navItems[1]].map((item) => (
-              <TabLink key={item.href} item={item} active={isActive(item.href)} />
-            ))}
-            <Link
-              href="/admin/articles/new"
-              aria-label="New article"
-              className="press flex flex-1 flex-col items-center justify-center gap-1 text-[0.6875rem] font-semibold text-ink-muted"
-            >
-              <span className="grid size-10 place-items-center rounded-full bg-accent text-white">
-                <svg width="20" height="20" viewBox="0 0 24 24" {...s} strokeWidth={2.2} aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
-              </span>
-            </Link>
-            <TabLink item={navItems[3]} active={isActive(navItems[3].href)} />
-            <button
-              type="button"
-              onClick={() => setOpenOn(open ? null : pathname)}
-              aria-expanded={open}
-              className={`press flex flex-1 flex-col items-center justify-center gap-1 text-[0.6875rem] font-semibold ${open ? "text-ink" : "text-ink-muted"}`}
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" {...s} aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" /></svg>
-              More
-            </button>
-          </div>
-        </nav>
+        <GlassDock className="pointer-events-none fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+10px)] z-40 flex items-end justify-center gap-2 px-4 lg:hidden">
+          <GlassTabBar
+            aria-label="Admin quick navigation"
+            className="pointer-events-auto"
+            style={tabBarStyle(4, 60 + 8)}
+            link={Link}
+            items={[
+              ...[navItems[0], navItems[1], navItems[3]].map((item) => ({
+                value: item.href,
+                href: item.href,
+                label: item.short ?? item.label,
+                icon: <svg width="22" height="22" viewBox="0 0 24 24" {...s} aria-hidden="true">{item.icon}</svg>,
+              })),
+              {
+                value: "more",
+                label: "More",
+                icon: <svg width="22" height="22" viewBox="0 0 24 24" {...s} aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" /></svg>,
+              },
+            ]}
+            value={open ? "more" : ([navItems[0], navItems[1], navItems[3]].find((i) => isActive(i.href))?.href ?? null)}
+            onValueChange={(v) => setOpenOn(v === "more" && !open ? pathname : null)}
+          />
+          <GlassButton
+            aria-label="New article"
+            variant="filled"
+            tint="var(--accent)"
+            className="pointer-events-auto"
+            style={SIDE_BUTTON}
+            icon={<svg width="22" height="22" viewBox="0 0 24 24" {...s} strokeWidth={2.2} aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>}
+            onClick={() => router.push("/admin/articles/new")}
+          />
+        </GlassDock>
       )}
 
 

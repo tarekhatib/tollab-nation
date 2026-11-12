@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 import { isManagedImage, uploadImage } from "@/lib/storage";
+import { MAX_FEATURED, type FeaturedSlot } from "@/lib/featured";
 
 type ArticlePayload = {
   title: string;
@@ -36,6 +37,54 @@ async function fetchAndStoreRemote(url: string, folder: "covers" | "content") {
   }
 }
 
+/** Every featured story except `excludeId`, newest first. Drafts count: they hold a slot. */
+async function featuredExcept(excludeId?: number): Promise<FeaturedSlot[]> {
+  const rows = await prisma.article.findMany({
+    where: { isFeatured: true, ...(excludeId !== undefined && { id: { not: excludeId } }) },
+    select: { id: true, title: true, titleAr: true, isDraft: true },
+    orderBy: { publishedAt: "desc" },
+  });
+  return rows.map((r) => ({ id: r.id, title: r.titleAr || r.title, isDraft: r.isDraft }));
+}
+
+/** Throws when featuring one more story would pass the carousel limit. */
+async function assertFeaturedRoom(excludeId?: number) {
+  if ((await featuredExcept(excludeId)).length >= MAX_FEATURED) {
+    throw new Error(`Only ${MAX_FEATURED} articles can be featured at once. Unfeature one first.`);
+  }
+}
+
+/** For the editor's Featured switch: the other featured stories, to check for room. */
+export async function getFeaturedSlots(excludeId?: number): Promise<FeaturedSlot[]> {
+  await requireAdmin();
+  return featuredExcept(excludeId);
+}
+
+/**
+ * Star / unstar from the admin list. Returns the current featured stories instead
+ * of throwing when the carousel is full (thrown messages are hidden in production).
+ */
+export async function setArticleFeatured(
+  id: number,
+  value: boolean
+): Promise<{ ok: true } | { ok: false; featured: FeaturedSlot[] }> {
+  await requireAdmin();
+  if (value) {
+    const others = await featuredExcept(id);
+    if (others.length >= MAX_FEATURED) return { ok: false, featured: others };
+  }
+  const article = await prisma.article.update({
+    where: { id },
+    data: { isFeatured: value },
+    include: { category: true },
+  });
+  revalidatePath("/");
+  revalidatePath(`/${article.category.slug}/${article.slug}`);
+  revalidatePath("/admin");
+  revalidatePath("/admin/articles");
+  return { ok: true };
+}
+
 export async function createArticle(payload: ArticlePayload) {
   await requireAdmin();
   const slug = payload.slug?.trim() || slugify(payload.title);
@@ -44,6 +93,7 @@ export async function createArticle(payload: ArticlePayload) {
   if (existing) {
     throw new Error(`Slug "${slug}" is already in use. Choose a different one.`);
   }
+  if (payload.isFeatured) await assertFeaturedRoom();
 
   // Store remote cover images in managed cloud storage when configured.
   let coverToStore = payload.coverImage ?? null;
@@ -84,6 +134,7 @@ export async function updateArticle(
   await requireAdmin();
   const current = await prisma.article.findUnique({ where: { id } });
   if (!current) throw new Error("Article not found.");
+  if (payload.isFeatured && !current.isFeatured) await assertFeaturedRoom(id);
 
   const data: Record<string, unknown> = {};
 

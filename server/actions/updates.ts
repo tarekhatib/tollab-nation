@@ -3,6 +3,7 @@
 import { requireAdmin } from "@/lib/admin-guard";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { cleanUpdateText } from "@/lib/parse-update";
 
 export async function createQuickUpdate(payload: {
   textEn: string;
@@ -10,14 +11,17 @@ export async function createQuickUpdate(payload: {
   isBreaking?: boolean;
 }) {
   await requireAdmin();
-  if (!payload.textEn.trim() || !payload.textAr.trim()) {
+  // Same cleanup the form previews, so stray asterisks or emoji never reach the site.
+  const textEn = cleanUpdateText(payload.textEn);
+  const textAr = cleanUpdateText(payload.textAr);
+  if (!textEn || !textAr) {
     throw new Error("Both English and Arabic text are required.");
   }
 
   const update = await prisma.quickUpdate.create({
     data: {
-      textEn: payload.textEn.trim(),
-      textAr: payload.textAr.trim(),
+      textEn,
+      textAr,
       isBreaking: payload.isBreaking ?? false,
     },
   });

@@ -98,6 +98,9 @@ export default async function CategoryPage({ params }: Props) {
             )}
           </section>
 
+          {/* Before the long list, not after 24 stories nobody scrolls past */}
+          <PartnerBand from="section" />
+
           {grid.length > 0 && (
             <section className="mt-16">
               <SectionHeading title="More stories" />
@@ -116,7 +119,6 @@ export default async function CategoryPage({ params }: Props) {
           )}
         </>
       )}
-      <PartnerBand />
     </main>
   );
 }

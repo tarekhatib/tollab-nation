@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
 import { InstagramIcon, WhatsAppIcon } from "@/components/ui/Icons";
 import { SITE } from "@/lib/site";
+import { GlassButton } from "@/components/ui/LiquidGlass";
 
 type Category = { id: number; name: string; slug: string };
 
@@ -38,7 +39,7 @@ export default function MobileNav({
   const secondary = [
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
-    { href: "/contact?topic=partner", label: "Advertise with us" },
+    { href: "/contact?topic=partner&from=menu", label: "Advertise with us" },
   ];
 
   return (
@@ -51,22 +52,21 @@ export default function MobileNav({
             aria-modal="true"
             aria-label="Menu"
             id="mobile-menu"
-            className="sheet-in fixed inset-0 z-[70] flex flex-col overflow-y-auto bg-page pb-[calc(4.25rem+env(safe-area-inset-bottom))] pt-[env(safe-area-inset-top)] text-ink md:hidden"
+            className="sheet-in fixed inset-0 z-[70] flex flex-col overflow-y-auto bg-page pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-[env(safe-area-inset-top)] text-ink md:hidden"
           >
             <div className="flex h-16 shrink-0 items-center justify-between border-b border-line px-4">
               <Link href="/" className="text-ink" onClick={() => setOpen(false)}>
                 <Logo size="sm" />
               </Link>
-              <button
-                type="button"
+              <GlassButton
                 onClick={() => setOpen(false)}
                 aria-label="Close menu"
-                className="grid size-10 place-items-center rounded-full hover:bg-ink/5"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" aria-hidden="true">
-                  <path d="M6 6l12 12M18 6L6 18" />
-                </svg>
-              </button>
+                icon={
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden="true">
+                    <path d="M6 6l12 12M18 6L6 18" />
+                  </svg>
+                }
+              />
             </div>
 
             <nav className="flex-1 px-4 py-6" aria-label="Sections">

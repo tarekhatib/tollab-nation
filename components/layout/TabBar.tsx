@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { GlassButton, GlassDock, GlassTabBar, SIDE_BUTTON, tabBarStyle, type GlassTabItem } from "@/components/ui/LiquidGlass";
 import MobileNav from "@/components/layout/MobileNav";
 import { BookmarkIcon } from "@/components/article/SaveButton";
 import { useSavedStories } from "@/lib/saved";
@@ -43,78 +44,82 @@ function MenuIcon({ open }: { open: boolean }) {
 }
 
 /**
- * App-style bottom tab bar for phones and small tablets (hidden from md up).
- * Thumb-reachable primary navigation; the Menu tab opens the sections sheet.
+ * Phone navigation in iOS 26's liquid-glass style (hidden from md up): a floating
+ * glass tab bar, with Search as its own glass circle beside it, as in iOS apps.
+ * The Menu tab opens the sections sheet.
  */
 export default function TabBar({ categories }: { categories: Category[] }) {
   const pathname = usePathname();
+  const router = useRouter();
   // The sheet remembers the page it was opened on; navigating anywhere closes it.
   const [menuOn, setMenuOn] = useState<string | null>(null);
   const menuOpen = menuOn === pathname;
   const savedCount = useSavedStories().length;
 
-  const tabs = [
-    { href: "/", label: "Home", icon: (a: boolean) => <HomeIcon active={a} />, match: (p: string) => p === "/" },
-    { href: "/updates", label: "Live", icon: () => <LiveIcon />, match: (p: string) => p === "/updates", live: true },
+  const badge = savedCount > 0 && (
+    <span className="absolute -right-2.5 -top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-red px-1 text-[0.625rem] font-bold leading-none text-white tabular-nums">
+      {savedCount > 99 ? "99+" : savedCount}
+    </span>
+  );
+
+  const items: GlassTabItem[] = [
+    { value: "home", href: "/", label: "Home", icon: <span className="relative flex"><HomeIcon active={pathname === "/"} /></span> },
     {
+      value: "live",
+      href: "/updates",
+      label: "Live",
+      icon: (
+        <span className="relative flex">
+          <LiveIcon />
+          <span className="live-dot absolute -right-0.5 -top-0.5 size-2 rounded-full bg-red" />
+        </span>
+      ),
+    },
+    {
+      value: "saved",
       href: "/saved",
       label: "Saved",
-      icon: (a: boolean) => <BookmarkIcon filled={a} size={22} />,
-      match: (p: string) => p === "/saved",
-      badge: savedCount,
+      icon: (
+        <span className="relative flex">
+          <BookmarkIcon filled={pathname === "/saved"} size={22} />
+          {badge}
+        </span>
+      ),
     },
-    { href: "/search", label: "Search", icon: (a: boolean) => <SearchTabIcon active={a} />, match: (p: string) => p === "/search" },
+    // No href: a button that opens the sections sheet.
+    { value: "menu", label: menuOpen ? "Close" : "Menu", icon: <span className="relative flex"><MenuIcon open={menuOpen} /></span> },
   ];
 
-  const item =
-    "press relative flex h-full flex-1 flex-col items-center justify-center gap-1 text-[0.6875rem] font-semibold tracking-wide transition-colors";
+  const current = menuOpen
+    ? "menu"
+    : pathname === "/" ? "home" : pathname === "/updates" ? "live" : pathname === "/saved" ? "saved" : null;
 
   return (
     <>
       <MobileNav categories={categories} open={menuOpen} onClose={() => setMenuOn(null)} />
 
-      <nav
-        aria-label="Primary"
-        className="theme-ink tab-bar fixed inset-x-0 bottom-0 z-[80] border-t border-line bg-header/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
-      >
-        <div className="mx-auto flex h-16 max-w-lg items-stretch px-2">
-          {tabs.map((t) => {
-            const active = !menuOpen && t.match(pathname);
-            return (
-              <Link
-                key={t.href}
-                href={t.href}
-                aria-current={active ? "page" : undefined}
-                onClick={() => setMenuOn(null)}
-                className={`${item} ${active ? "text-ink" : "text-ink-muted"}`}
-              >
-                <span aria-hidden="true" className={`absolute inset-x-5 top-0 h-0.5 origin-center bg-red transition-transform duration-500 ease-(--ease-out-expo) ${active ? "scale-x-100" : "scale-x-0"}`} />
-                <span className="relative">
-                  {t.icon(active)}
-                  {t.live && <span className="live-dot absolute -right-0.5 -top-0.5 size-2 rounded-full bg-red ring-2 ring-[#0A0A0A]" />}
-                  {!!t.badge && (
-                    <span className="absolute -right-2.5 -top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-red px-1 text-[0.625rem] font-bold leading-none text-white tabular-nums">
-                      {t.badge > 99 ? "99+" : t.badge}
-                    </span>
-                  )}
-                </span>
-                {t.label}
-              </Link>
-            );
-          })}
-          <button
-            type="button"
-            onClick={() => setMenuOn(menuOpen ? null : pathname)}
-            aria-expanded={menuOpen}
-            aria-controls="mobile-menu"
-            className={`${item} ${menuOpen ? "text-ink" : "text-ink-muted"}`}
-          >
-            <span aria-hidden="true" className={`absolute inset-x-5 top-0 h-0.5 bg-red transition-transform duration-500 ease-(--ease-out-expo) ${menuOpen ? "scale-x-100" : "scale-x-0"}`} />
-            <MenuIcon open={menuOpen} />
-            {menuOpen ? "Close" : "Menu"}
-          </button>
-        </div>
-      </nav>
+      <GlassDock className="pointer-events-none fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+10px)] z-[80] flex items-end justify-center gap-2 px-4 md:hidden">
+        <GlassTabBar
+          aria-label="Primary"
+          className="pointer-events-auto"
+          style={tabBarStyle(items.length, 60 + 8)}
+          items={items}
+          link={Link}
+          value={current}
+          onValueChange={(v) => setMenuOn(v === "menu" && !menuOpen ? pathname : null)}
+        />
+        <GlassButton
+          aria-label="Search"
+          className="pointer-events-auto"
+          style={SIDE_BUTTON}
+          data-selected={pathname === "/search" ? "" : undefined}
+          icon={<SearchTabIcon active={pathname === "/search"} />}
+          onClick={() => {
+            setMenuOn(null);
+            router.push("/search");
+          }}
+        />
+      </GlassDock>
     </>
   );
 }

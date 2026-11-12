@@ -501,3 +501,33 @@ summary,
     font-size: 16px !important;
   }
 }
+
+/* Featured carousel (homepage lead). The bar fill doubles as the 5-second timer:
+   when its animation ends the carousel advances; pausing it pauses the carousel. */
+@keyframes fc-fill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fc-fill { animation: fc-fill 5s linear both; }
+  .fc-paused .fc-fill { animation-play-state: paused; }
+}
+/* Desktop: arrow cursor matching the half of the image under the pointer.
+   `button.` so it outranks the global `button:not(:disabled) { cursor: pointer }`. */
+button.fc-prev { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Ccircle cx='22' cy='22' r='20' fill='white' fill-opacity='.94'/%3E%3Cpath d='M25 15l-7 7 7 7' fill='none' stroke='%230A0A0A' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 22 22, w-resize; }
+button.fc-next { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Ccircle cx='22' cy='22' r='20' fill='white' fill-opacity='.94'/%3E%3Cpath d='M19 15l7 7-7 7' fill='none' stroke='%230A0A0A' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 22 22, e-resize; }
+
+/* Phone tab bars (GlassDock): clear liquid glass, not frosted, as iOS 26's
+   "clear" look. data-theme is set from what's behind the bar, so the glass and
+   its labels flip dark/light like Apple's; these beat glisse's :where() defaults. */
+.glass-dock { --lg-blur: 0px; }
+.glass-dock[data-theme="light"] {
+  --lg-glass: rgb(255 255 255 / 0.2);
+  --lg-glass-active: rgb(255 255 255 / 0.36);
+  --lg-edge: rgb(0 0 0 / 0.12);
+}
+.glass-dock[data-theme="dark"] {
+  --lg-glass: rgb(0 0 0 / 0.3);
+  --lg-glass-active: rgb(0 0 0 / 0.45);
+  --lg-edge: rgb(255 255 255 / 0.16);
+}

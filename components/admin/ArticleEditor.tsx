@@ -10,7 +10,9 @@ import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import { useState, useTransition, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { createArticle, deleteArticle, updateArticle } from "@/server/actions/articles";
+import { createArticle, deleteArticle, getFeaturedSlots, setArticleFeatured, updateArticle } from "@/server/actions/articles";
+import FeaturedLimitDialog from "@/components/admin/FeaturedLimitDialog";
+import { MAX_FEATURED, type FeaturedSlot } from "@/lib/featured";
 import { uploadImage } from "@/lib/upload-image";
 import { slugify } from "@/lib/utils";
 
@@ -175,6 +177,29 @@ export default function ArticleEditor({ categories, authors, article }: Props) {
   const [authorId, setAuthorId] = useState<number>(article?.authorId ?? 0);
   const [coverImage, setCoverImage] = useState(article?.coverImage ?? "");
   const [isFeatured, setIsFeatured] = useState(article?.isFeatured ?? false);
+  // Set when the carousel is full: the stories currently holding the slots.
+  const [featuredFull, setFeaturedFull] = useState<FeaturedSlot[] | null>(null);
+  const [checkingFeatured, setCheckingFeatured] = useState(false);
+
+  async function toggleFeatured() {
+    if (isFeatured) {
+      setIsFeatured(false);
+      setIsDirty(true);
+      return;
+    }
+    setCheckingFeatured(true);
+    try {
+      const others = await getFeaturedSlots(article?.id);
+      if (others.length >= MAX_FEATURED) {
+        setFeaturedFull(others);
+        return;
+      }
+      setIsFeatured(true);
+      setIsDirty(true);
+    } finally {
+      setCheckingFeatured(false);
+    }
+  }
   const [slug, setSlug] = useState(article?.slug ?? "");
   const slugEditedRef = useRef(!!article);
   const [pendingAction, setPendingAction] = useState<"draft" | "publish" | null>(null);
@@ -414,13 +439,25 @@ export default function ArticleEditor({ categories, authors, article }: Props) {
         </div>
 
         <div>
+          <FeaturedLimitDialog
+            featured={featuredFull}
+            onClose={() => setFeaturedFull(null)}
+            onSwap={async (oldId) => {
+              // Frees the slot right away; this article is featured when it is saved.
+              await setArticleFeatured(oldId, false);
+              setFeaturedFull(null);
+              setIsFeatured(true);
+              setIsDirty(true);
+            }}
+          />
           <div className="flex items-center justify-between mb-1">
             <label className="block text-sm font-medium text-ink">Cover image</label>
             <button
               type="button"
               role="switch"
               aria-checked={isFeatured}
-              onClick={() => { setIsFeatured((v) => !v); setIsDirty(true); }}
+              disabled={checkingFeatured}
+              onClick={toggleFeatured}
               className="-my-2 flex items-center gap-2 py-2 text-xs font-medium text-ink-muted"
             >
               Featured

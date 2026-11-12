@@ -6,8 +6,9 @@ import SavedLink from "@/components/layout/SavedLink";
 import NavRail from "@/components/layout/NavRail";
 import ThemeToggle from "@/components/layout/ThemeToggle";
 import ScrollWatcher from "@/components/layout/ScrollWatcher";
-import { InstagramIcon, SearchIcon, WhatsAppIcon } from "@/components/ui/Icons";
+import { ArrowIcon, InstagramIcon, SearchIcon, WhatsAppIcon } from "@/components/ui/Icons";
 import { SITE } from "@/lib/site";
+import { partnerHref } from "@/components/ui/PartnerBand";
 
 function todayLabels() {
   const now = new Date();
@@ -48,6 +49,16 @@ export default async function Header() {
           </p>
           <div className="flex items-center gap-5">
             <p className="kicker text-ink-muted">{SITE.tagline}</p>
+            {/* Red + arrow so it reads as a link, not more of the tagline */}
+            <span className="h-3.5 w-px bg-line" aria-hidden="true" />
+            <Link
+              href={partnerHref("header")}
+              className="group kicker inline-flex items-center gap-1.5 text-accent-ink transition-colors hover:text-white"
+            >
+              Advertise with us
+              <ArrowIcon size={12} className="arrow-nudge" />
+            </Link>
+            <span className="h-3.5 w-px bg-line" aria-hidden="true" />
             <a href={SITE.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-ink-muted transition-colors hover:text-ink">
               <InstagramIcon size={15} />
             </a>
@@ -77,15 +88,23 @@ export default async function Header() {
                 <WhatsAppIcon size={16} />
                 Follow the channel
               </a>
-              <a
-                href={SITE.whatsappChannel}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Follow Tollab Nation on WhatsApp"
-                className="press ml-1 grid size-10 place-items-center rounded-full bg-[#25D366] text-white sm:hidden"
-              >
-                <WhatsAppIcon size={18} />
-              </a>
+              {/* Hidden from sm up on a wrapper: glisse's CSS outranks Tailwind's. */}
+              <span className="ml-1 sm:hidden">
+                <a
+                  href={SITE.whatsappChannel}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow Tollab Nation on WhatsApp"
+                  // glisse's filled glass button classes on a real link (its Button renders a <button>).
+                  data-icon="only"
+                  data-variant="filled"
+                  data-tint=""
+                  style={{ "--lg-tint": "#25D366" } as React.CSSProperties}
+                  className="lg-glass lg-button text-white"
+                >
+                  <WhatsAppIcon size={18} />
+                </a>
+              </span>
             </div>
           </div>
         </div>

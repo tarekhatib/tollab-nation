@@ -119,7 +119,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <PartnerBand />
+        <PartnerBand from="about" />
         <ChannelCta />
       </div>
     </main>

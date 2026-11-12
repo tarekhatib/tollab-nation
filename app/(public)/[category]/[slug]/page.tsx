@@ -12,6 +12,7 @@ import VerifiedBadge from "@/components/author/VerifiedBadge";
 import { ArrowIcon, WhatsAppIcon } from "@/components/ui/Icons";
 import { SITE } from "@/lib/site";
 import ArticleCard from "@/components/ui/ArticleCard";
+import { PartnerStrip } from "@/components/ui/PartnerBand";
 import { getArticleBySlug, getRelatedArticles } from "@/server/queries/articles";
 import { getAdsForArticle } from "@/server/queries/ads";
 import { formatDate, readingTime } from "@/lib/utils";
@@ -265,7 +266,7 @@ export default async function ArticlePage({ params }: Props) {
       </main>
 
       {related.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading title={`More in ${article.category.name}`} href={`/${article.category.slug}`} />
           <div className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((a) => (
@@ -274,6 +275,10 @@ export default async function ArticlePage({ params }: Props) {
           </div>
         </section>
       )}
+
+      <div className="mx-auto max-w-7xl px-4 pb-20 pt-14 sm:px-6 lg:px-8">
+        <PartnerStrip from="article" />
+      </div>
     </>
   );
 }
