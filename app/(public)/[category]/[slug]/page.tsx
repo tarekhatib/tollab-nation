@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import ArticleContent from "@/components/article/ArticleContent";
 import ArticleAd from "@/components/article/ArticleAd";
+import AdSenseUnit from "@/components/ads/AdSenseUnit";
 import ShareButtons from "@/components/article/ShareButtons";
 import SaveButton from "@/components/article/SaveButton";
 import ViewTracker from "@/components/article/ViewTracker";
@@ -217,11 +218,12 @@ export default async function ArticlePage({ params }: Props) {
               const doc = article.content as { type: string; content?: unknown[] };
               const nodes = doc.content ?? [];
 
-              if (!ad3 || nodes.length < 4) {
+              // Short articles get no mid-article ad at all.
+              if (nodes.length < 4) {
                 return <ArticleContent content={article.content as ContentNode} />;
               }
 
-              // Position 3 — split content at midpoint
+              // Position 3 — split content at midpoint; Google fills it when no sponsor does
               const mid = Math.ceil(nodes.length / 2);
               const firstHalf = { type: "doc", content: nodes.slice(0, mid) } as ContentNode;
               const secondHalf = { type: "doc", content: nodes.slice(mid) } as ContentNode;
@@ -229,14 +231,18 @@ export default async function ArticlePage({ params }: Props) {
               return (
                 <>
                   <ArticleContent content={firstHalf} />
-                  <ArticleAd imageUrl={ad3.imageUrl} linkUrl={ad3.linkUrl} text={ad3.text} />
+                  {ad3 ? (
+                    <ArticleAd imageUrl={ad3.imageUrl} linkUrl={ad3.linkUrl} text={ad3.text} />
+                  ) : (
+                    <AdSenseUnit />
+                  )}
                   <ArticleContent content={secondHalf} />
                 </>
               );
             })()}
           </div>
-          {/* Position 4 — directly after the article */}
-          {ad4 && <ArticleAd imageUrl={ad4.imageUrl} linkUrl={ad4.linkUrl} text={ad4.text} />}
+          {/* Position 4 — directly after the article; Google fills it when no sponsor does */}
+          {ad4 ? <ArticleAd imageUrl={ad4.imageUrl} linkUrl={ad4.linkUrl} text={ad4.text} /> : <AdSenseUnit />}
           <ViewTracker slug={article.slug} />
 
           <div className="mt-12 flex flex-col gap-6 border-t-[3px] border-line-strong pt-6 sm:flex-row sm:items-center sm:justify-between">

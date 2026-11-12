@@ -14,6 +14,11 @@ rsync -az --exclude node_modules --exclude auth --exclude state.json \
 
 "${SSH[@]}" 'bash -s' <<'REMOTE'
 set -e
+# Free-tier VMs have ~1 GB RAM; add 1 GB swap so npm installs never run out of memory.
+if [ ! -f /swapfile ]; then
+  sudo fallocate -l 1G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile >/dev/null
+  sudo swapon /swapfile && echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab >/dev/null
+fi
 if ! command -v node >/dev/null || [ "$(node -p 'process.versions.node.split(".")[0]')" -lt 20 ]; then
   curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
   sudo apt-get install -y nodejs

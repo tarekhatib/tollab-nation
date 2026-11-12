@@ -1,4 +1,4 @@
-import { SITE } from "@/lib/site";
+import { ADSENSE, SITE } from "@/lib/site";
 import type { Metadata, Viewport } from "next";
 import { Archivo, Big_Shoulders, IBM_Plex_Sans_Arabic, IBM_Plex_Mono } from "next/font/google";
 import ClientScripts from "@/components/layout/ClientScripts";
@@ -72,6 +72,8 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
   },
   formatDetection: { telephone: false },
+  // AdSense site ownership verification.
+  other: { "google-adsense-account": ADSENSE.client },
 };
 
 export const viewport: Viewport = {

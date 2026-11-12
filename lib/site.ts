@@ -22,3 +22,10 @@ export const SITE = {
   whatsappDirect: "https://wa.me/96176334381",
   phone: "+961 76 334 381",
 } as const;
+
+/** Google AdSense. The publisher ID also appears in public/ads.txt; keep them in sync. */
+export const ADSENSE = {
+  client: "ca-pub-2732587372734594",
+  /** "Article" responsive display unit: fills article ad slots that have no direct sponsor. */
+  articleSlot: "1665213027",
+} as const;

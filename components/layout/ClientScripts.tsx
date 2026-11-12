@@ -18,17 +18,6 @@ export default function ClientScripts() {
     } catch {
       document.documentElement.dataset.theme = "light";
     }
-
-    const adsScript = document.createElement("script");
-    adsScript.async = true;
-    adsScript.crossOrigin = "anonymous";
-    adsScript.src =
-      "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6562202667955501";
-    document.head.appendChild(adsScript);
-
-    return () => {
-      adsScript.remove();
-    };
   }, []);
 
   return null;

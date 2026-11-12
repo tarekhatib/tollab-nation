@@ -555,3 +555,11 @@ button.fc-next { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org
   .glass-dock .lg-button,
   .glass-dock .lg-tab { transition-duration: 0s; }
 }
+
+/* AdSense: the unit stays in the layout so Google can measure it, but the label and
+   spacing only appear once an ad is actually filled. Pending or unfilled units (e.g.
+   while the site is under review) take no space. */
+.ad-slot .ad-label { display: none; }
+.ad-slot:has(ins[data-ad-status="filled"]) { margin-block: 1.5rem; }
+.ad-slot:has(ins[data-ad-status="filled"]) .ad-label { display: block; }
+.ad-slot ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
