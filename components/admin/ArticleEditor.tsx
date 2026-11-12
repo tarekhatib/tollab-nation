@@ -359,6 +359,17 @@ export default function ArticleEditor({ categories, authors, article }: Props) {
     <form onSubmit={handleSubmit} className="flex-1 min-w-0 space-y-6 w-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
+          <label className="block text-sm font-medium text-ink mb-1">Title (Arabic)</label>
+          <input
+            type="text"
+            value={titleAr}
+            onChange={(e) => { setTitleAr(e.target.value); setIsDirty(true); }}
+            placeholder="عنوان المقالة بالعربية…"
+            dir="rtl"
+            className="w-full px-4 py-2.5 border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent text-right"
+          />
+        </div>
+        <div>
           <label className="block text-sm font-medium text-ink mb-1">Title (English)</label>
           <input
             type="text"
@@ -372,17 +383,6 @@ export default function ArticleEditor({ categories, authors, article }: Props) {
             }}
             placeholder="Article title in English…"
             className="w-full px-4 py-2.5 border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-ink mb-1">Title (Arabic)</label>
-          <input
-            type="text"
-            value={titleAr}
-            onChange={(e) => { setTitleAr(e.target.value); setIsDirty(true); }}
-            placeholder="عنوان المقالة بالعربية…"
-            dir="rtl"
-            className="w-full px-4 py-2.5 border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent text-right"
           />
         </div>
       </div>
