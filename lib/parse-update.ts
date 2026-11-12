@@ -17,9 +17,15 @@ const LATIN = /[A-Za-z]/g;
 // indicators), skin tones, variation selectors, zero-width joiners, keycaps.
 const EMOJI = /[\p{Extended_Pictographic}\u{1F1E6}-\u{1F1FF}\u{1F3FB}-\u{1F3FF}︎️‍⃣]/gu;
 
-/** Strip WhatsApp formatting (*bold*, _italic_, ~strike~, ```mono```) and emoji. */
+// Links: full URLs, www. addresses, bare links with a path (wa.me/…, t.co/…), and
+// bare domains on common endings (tollabnation.com).
+const URL =
+  /(?:https?:\/\/|www\.)\S+|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,}\/\S*|\b[a-z0-9-]+\.(?:com|net|org|lb|me|io|co|app|info|news|tv)\b/gi;
+
+/** Strip links, WhatsApp formatting (*bold*, _italic_, ~strike~, ```mono```) and emoji. */
 export function cleanUpdateText(s: string): string {
   return s
+    .replace(URL, "")
     .replace(EMOJI, "")
     .replace(/```/g, "")
     .replace(/[*~]/g, "")
