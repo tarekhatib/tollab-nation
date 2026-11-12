@@ -33,7 +33,7 @@ export default function UpdateForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-canvas border border-line p-5 space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4 border border-line bg-canvas p-4 sm:p-5">
       <h2 className="text-sm font-semibold text-ink">New Update</h2>
 
       <div>
@@ -45,10 +45,13 @@ export default function UpdateForm() {
           required
           value={raw}
           onChange={(e) => setRaw(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) e.currentTarget.form?.requestSubmit();
+          }}
           rows={5}
           dir="auto"
           placeholder={"*الخبر بالعربية*\n🇱🇧‼️\n*The update in English*"}
-          className="w-full px-3 py-2 border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent resize-y"
+          className="block w-full resize-y border border-line bg-surface px-3 py-2.5 text-base leading-relaxed text-ink focus:border-ink focus:outline-none sm:text-sm"
         />
         <p className="mt-1 text-xs text-ink-muted">
           Arabic and English lines are split automatically. Asterisks and emojis are removed.
@@ -76,30 +79,27 @@ export default function UpdateForm() {
         </div>
       )}
 
-      <div className="flex items-center justify-between">
-        <label className="flex items-center gap-2.5 cursor-pointer select-none">
-          <button
-            type="button"
-            role="switch"
-            aria-checked={isBreaking}
-            onClick={() => setIsBreaking((v) => !v)}
-            className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none ${
-              isBreaking ? "bg-accent" : "bg-ink/20"
-            }`}
-          >
-            <span
-              className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform duration-200 ${
-                isBreaking ? "translate-x-4" : "translate-x-0.5"
-              }`}
-            />
-          </button>
-          <span className="text-sm text-ink">Breaking</span>
-        </label>
+      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <button
+          type="button"
+          onClick={() => setIsBreaking((v) => !v)}
+          aria-pressed={isBreaking}
+          className={`press inline-flex h-11 items-center justify-center gap-1.5 rounded-full border px-4 text-xs font-bold uppercase tracking-wider transition-colors sm:h-9 sm:justify-start ${
+            isBreaking
+              ? "border-accent bg-accent text-white"
+              : "border-line text-ink-muted hover:border-ink hover:text-ink"
+          }`}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill={isBreaking ? "currentColor" : "none"} stroke="currentColor" strokeWidth={2.2} strokeLinejoin="round" aria-hidden="true">
+            <path d="M13 2 4 14h7l-1 8 9-12h-7z" />
+          </svg>
+          Breaking
+        </button>
 
         <button
           type="submit"
           disabled={isPending || !ready}
-          className="px-4 py-2 bg-accent text-white text-sm font-semibold rounded-full hover:bg-accent-hover transition-colors disabled:opacity-50"
+          className="press inline-flex h-11 items-center justify-center rounded-full bg-accent px-6 text-sm font-semibold text-white transition-colors hover:bg-accent-hover disabled:opacity-50"
         >
           {isPending ? "Posting…" : "Post update"}
         </button>

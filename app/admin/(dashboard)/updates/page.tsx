@@ -18,7 +18,18 @@ export default async function AdminUpdatesPage() {
 
       <UpdateForm />
 
-      <div className="bg-canvas border border-line overflow-hidden">
+      <div>
+      {updates.length > 0 && (
+        <div className="mb-2 flex items-baseline justify-between px-1">
+          <h2 className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
+            Live now · {updates.length}
+          </h2>
+          <p className="text-xs text-ink-muted">
+            {updates.filter((u) => u.isBreaking).length} breaking
+          </p>
+        </div>
+      )}
+      <div className="overflow-hidden border border-line bg-canvas">
         {updates.length === 0 ? (
           <div className="px-6 py-12 text-center text-sm text-ink-soft">No updates yet.</div>
         ) : (
@@ -28,6 +39,7 @@ export default async function AdminUpdatesPage() {
             ))}
           </ul>
         )}
+      </div>
       </div>
     </div>
   );
