@@ -22,8 +22,14 @@ export async function saveQuickUpdate(payload: {
     data: { textEn, textAr, isBreaking: payload.isBreaking ?? false },
   });
 
+  revalidateUpdates();
+  return update;
+}
+
+/** Every page that shows live updates: homepage sidebar/ticker, /updates, admin. */
+export function revalidateUpdates() {
   revalidatePath("/");
   revalidatePath("/updates");
   revalidatePath("/admin");
-  return update;
+  revalidatePath("/admin/updates");
 }
