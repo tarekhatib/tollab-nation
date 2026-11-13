@@ -18,6 +18,7 @@ import makeWASocket, {
   getBinaryNodeChild,
   getBinaryNodeChildBuffer,
   getBinaryNodeChildren,
+  isJidNewsletter,
   normalizeMessageContent,
   proto,
   useMultiFileAuthState,
@@ -26,7 +27,6 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import pino from "pino";
-import qrcode from "qrcode-terminal";
 
 const here = dirname(fileURLToPath(import.meta.url));
 loadEnv(join(here, ".env"));
@@ -34,7 +34,6 @@ loadEnv(join(here, ".env"));
 const SITE_URL = required("SITE_URL").replace(/\/$/, "");
 const INGEST_SECRET = required("INGEST_SECRET");
 const CHANNEL = required("CHANNEL_LINK"); // https://whatsapp.com/channel/<code>
-const PAIR_PHONE = process.env.PAIR_PHONE?.replace(/\D/g, ""); // optional: pair by code instead of QR
 const POLL_SECONDS = Number(process.env.POLL_SECONDS || 60);
 const HEARTBEAT_URL = process.env.HEARTBEAT_URL; // optional: e.g. a healthchecks.io ping URL
 
@@ -59,31 +58,32 @@ function markSeen(id) {
 let pollTimer;
 let liveTimer;
 
+/** Stay alive without reconnecting, so pm2 does not restart-loop while unlinked. */
+function idle(message) {
+  log.fatal(message);
+  setInterval(() => {}, 1 << 30);
+}
+
 async function start() {
   const { state: auth, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
+  // creds.me exists once linked by QR or code (`registered` is only set by the code flow).
+  if (!auth.creds.me?.id) {
+    return idle("Not linked to WhatsApp yet. Run: pm2 stop tollab-listener && npm run pair");
+  }
   const { version } = await fetchLatestBaileysVersion();
   const sock = makeWASocket({
     version,
     auth,
     logger: log.child({ module: "baileys" }, { level: "warn" }),
-    browser: Browsers.macOS("Desktop"),
+    browser: Browsers.macOS("Chrome"), // same identity as pair.mjs
     markOnlineOnConnect: false,
     syncFullHistory: false,
+    // Only channels matter; skip decrypting this number's groups and private chats.
+    shouldIgnoreJid: (jid) => !isJidNewsletter(jid),
   });
   sock.ev.on("creds.update", saveCreds);
 
-  if (PAIR_PHONE && !sock.authState.creds.registered) {
-    setTimeout(async () => {
-      const code = await sock.requestPairingCode(PAIR_PHONE);
-      log.info(`PAIRING CODE: ${code}  → WhatsApp › Linked devices › Link with phone number`);
-    }, 3000);
-  }
-
-  sock.ev.on("connection.update", async ({ connection, lastDisconnect, qr }) => {
-    if (qr && !PAIR_PHONE) {
-      log.info("Scan this QR in WhatsApp › Linked devices › Link a device:");
-      qrcode.generate(qr, { small: true });
-    }
+  sock.ev.on("connection.update", async ({ connection, lastDisconnect }) => {
     if (connection === "open") {
       log.info("Connected to WhatsApp");
       try {
@@ -97,8 +97,7 @@ async function start() {
       clearInterval(liveTimer);
       const code = lastDisconnect?.error?.output?.statusCode;
       if (code === DisconnectReason.loggedOut) {
-        log.fatal("Logged out from the phone. Delete the auth/ folder and pair again.");
-        process.exit(1);
+        return idle("Logged out from the phone. Run: pm2 stop tollab-listener && npm run pair");
       }
       log.warn({ code }, "Disconnected, reconnecting in 5s");
       setTimeout(start, 5000);
@@ -140,7 +139,7 @@ async function onConnected(sock) {
 
   const poll = async () => {
     try {
-      for (const { id, message } of (await fetchLatest(sock)).reverse()) await handle(id, message);
+      for (const { id, message } of await fetchLatest(sock)) await handle(id, message); // oldest first
       if (HEARTBEAT_URL) fetch(HEARTBEAT_URL).catch(() => {});
     } catch (err) {
       log.warn({ err }, "Poll failed");
@@ -150,17 +149,36 @@ async function onConnected(sock) {
   pollTimer = setInterval(poll, POLL_SECONDS * 1000);
 }
 
-/** Latest channel posts as { id, message }, newest first as the server returns them. */
+/** Latest channel posts as { id, message }, oldest first as the server returns them.
+ *  message is null when a post carries no readable content; it still counts for the baseline. */
 async function fetchLatest(sock) {
-  const res = await sock.newsletterFetchMessages(state.channelJid, 20, undefined, undefined);
+  const started = Date.now();
+  // Baileys 7's newsletterFetchMessages gets no reply from WhatsApp; this is the request
+  // shape WhatsApp Web uses (and Baileys 6 sent), which does.
+  const res = await sock.query({
+    tag: "iq",
+    attrs: { id: sock.generateMessageTag(), type: "get", xmlns: "newsletter", to: "s.whatsapp.net" },
+    content: [{ tag: "messages", attrs: { type: "jid", jid: state.channelJid, count: "20" } }],
+  }, 20_000);
+  if (process.env.DEBUG_FETCH) {
+    const shape = (n, d = 0) => n && typeof n === "object" && n.tag
+      ? { tag: n.tag, attrs: n.attrs, ...(d < 4 && Array.isArray(n.content) ? { content: n.content.slice(0, 3).map((c) => shape(c, d + 1)) } : { bytes: n.content?.length }) }
+      : typeof n;
+    log.info({ ms: Date.now() - started, shape: shape(res) }, "fetch result");
+  }
   const updates = getBinaryNodeChild(res, "message_updates") ?? getBinaryNodeChild(res, "messages") ?? res;
   const list = getBinaryNodeChild(updates, "messages") ?? updates;
   return getBinaryNodeChildren(list, "message")
     .map((node) => {
       const buf = getBinaryNodeChildBuffer(node, "plaintext");
-      return buf ? { id: node.attrs.server_id, message: proto.Message.decode(buf) } : null;
+      if (process.env.DEBUG_FETCH) {
+        const m = buf ? normalizeMessageContent(proto.Message.decode(buf)) : null;
+        const text = m?.conversation || m?.extendedTextMessage?.text || m?.imageMessage?.caption || "";
+        log.info({ id: node.attrs.server_id, kinds: m ? Object.keys(m) : [], video: Boolean(m?.videoMessage || m?.ptvMessage), text: Array.from(text).slice(0, 90).join("") }, "post");
+      }
+      return { id: node.attrs.server_id, message: buf ? proto.Message.decode(buf) : null };
     })
-    .filter((m) => m?.id);
+    .filter((m) => m.id);
 }
 
 async function handle(id, rawMessage) {
